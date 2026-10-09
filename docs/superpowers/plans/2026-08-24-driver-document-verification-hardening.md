@@ -401,7 +401,7 @@ Expected: output includes `091_verified_doc_expiry.sql` applied with no error.
 
 Then confirm the columns exist:
 
-Run: `docker exec ocar_postgres psql -U postgres -d ocar -c "\d driver_documents" -c "\d driver_vehicle_documents"`
+Run: `docker exec ocar_postgres psql -U postgres -d waygo -c "\d driver_documents" -c "\d driver_vehicle_documents"`
 Expected: both tables list `claimed_valid_until | date` and `verified_valid_until | date`, and neither lists `valid_until`.
 
 - [ ] **Step 3: Commit**

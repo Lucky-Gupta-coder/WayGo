@@ -36,6 +36,9 @@ function redisStore(prefix: string): RedisStore | undefined {
         )) as RedisReply
       } catch (err) {
         logger.warn({ err, prefix }, 'rate-limit: redis command failed, allowing request through')
+        if (args[0] === 'SCRIPT' && args[1] === 'LOAD') {
+          return ''
+        }
         throw err
       }
     },

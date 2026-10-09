@@ -276,10 +276,14 @@ router.post('/:id/start-return', authenticate(), async (req, res, next) => {
 router.post('/:id/start-otp', authenticate(), async (req, res, next) => {
   try {
     const driverId = req.driver!.id
+    const body = req.body as { otp?: string }
+    if (!body.otp || typeof body.otp !== 'string') {
+      throw Object.assign(new Error('OTP is required'), { httpStatus: 400 })
+    }
     const result = await service.verifyStartOTP(
       driverId,
       BigInt(req.params['id']!),
-      (req.body as { otp: string }).otp
+      body.otp
     )
     res.json(result)
   } catch (err) { next(err) }
@@ -288,7 +292,10 @@ router.post('/:id/start-otp', authenticate(), async (req, res, next) => {
 router.post('/:id/end-otp', authenticate(), async (req, res, next) => {
   try {
     const driverId = req.driver!.id
-    const body = req.body as { otp: string; actual_distance_km?: number; actual_duration_min?: number; actual_end_lat?: number; actual_end_lng?: number }
+    const body = req.body as { otp?: string; actual_distance_km?: number; actual_duration_min?: number; actual_end_lat?: number; actual_end_lng?: number }
+    if (!body.otp || typeof body.otp !== 'string') {
+      throw Object.assign(new Error('OTP is required'), { httpStatus: 400 })
+    }
     const result = await service.verifyEndOTP(
       driverId,
       BigInt(req.params['id']!),

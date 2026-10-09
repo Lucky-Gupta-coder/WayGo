@@ -189,8 +189,7 @@ export default function HomePage() {
         durationMin:        String(route.durationMin),
         originCityId:       String(originCityId),
       })
-      if (route.polyline) params.set('polyline', route.polyline)
-      const path = classification?.scope === 'in_city' ? '/rental' : '/trip-type'
+      const path = (classification?.scope === 'in_city' && route.distanceKm < 15) ? '/rental' : '/trip-type'
       router.push(`${path}?${params.toString()}`)
     } catch {
       setResolving(false)
@@ -512,7 +511,7 @@ export default function HomePage() {
             >
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-bold text-text-primary leading-snug">20% off your first ride</p>
-                <p className="text-xs text-text-muted mt-0.5">New to Ocar? Use code at checkout</p>
+                <p className="text-xs text-text-muted mt-0.5">New to WayGo? Use code at checkout</p>
                 <div className="inline-flex items-center mt-2.5 rounded-lg px-3 py-1.5 bg-primary-subtle">
                   <span className="text-[11px] font-bold tracking-widest text-primary-dark">OCAR20</span>
                 </div>

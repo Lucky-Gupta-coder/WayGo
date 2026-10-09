@@ -113,7 +113,7 @@ Expected: output includes `078_city_billing_mode.sql` applied, no errors.
 
 - [ ] **Step 4: Verify schema**
 
-Run: `docker exec ocar_postgres psql -U postgres -d ocar -c "\d driver_package_wallets" -c "\d package_tiers" -c "\d driver_package_ledger"`
+Run: `docker exec ocar_postgres psql -U postgres -d waygo -c "\d driver_package_wallets" -c "\d package_tiers" -c "\d driver_package_ledger"`
 Expected: all three tables listed with the columns above.
 
 - [ ] **Step 5: Commit**
@@ -1845,7 +1845,7 @@ export default function RechargePackage() {
         order_id: res.data.orderId,
         amount: (res.data.amount ?? 0) * 100,
         currency: 'INR',
-        name: 'Ocar',
+        name: 'WayGo',
         description: `Package: ${tier.label}`,
         handler: async () => {
           setMsg(`₹${tier.threshold_value} threshold added!`)

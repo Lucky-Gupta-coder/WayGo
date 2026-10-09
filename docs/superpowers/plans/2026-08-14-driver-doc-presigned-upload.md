@@ -51,7 +51,7 @@ vi.mock('@aws-sdk/s3-request-presigner', () => ({
   getSignedUrl: vi.fn().mockResolvedValue('https://signed.example.com/put-url'),
 }))
 vi.mock('@/config', () => ({
-  config: { S3_BUCKET_NAME: 'ocar-docs', S3_REGION: 'ap-south-1', S3_ACCESS_KEY: 'k', S3_SECRET_KEY: 's' },
+  config: { S3_BUCKET_NAME: 'waygo-docs', S3_REGION: 'ap-south-1', S3_ACCESS_KEY: 'k', S3_SECRET_KEY: 's' },
 }))
 
 import { getUploadUrl, promotePendingUpload } from '@/lib/storage'
@@ -67,7 +67,7 @@ describe('getUploadUrl', () => {
       expect.anything(),
       expect.objectContaining({
         input: expect.objectContaining({
-          Bucket: 'ocar-docs',
+          Bucket: 'waygo-docs',
           Key: 'uploads/pending/drivers/7/profile_photo/abc.jpg',
           ContentType: 'image/jpeg',
         }),
@@ -91,12 +91,12 @@ describe('promotePendingUpload', () => {
     expect(sendMock).toHaveBeenCalledTimes(2)
     const copyCall = sendMock.mock.calls[0]![0] as { __type: string; input: Record<string, unknown> }
     expect(copyCall.__type).toBe('CopyObjectCommand')
-    expect(copyCall.input['CopySource']).toBe('ocar-docs/uploads/pending/drivers/7/profile_photo/abc.jpg')
+    expect(copyCall.input['CopySource']).toBe('waygo-docs/uploads/pending/drivers/7/profile_photo/abc.jpg')
     expect(copyCall.input['Key']).toMatch(/^drivers\/7\/profile_photo\/.+\.jpg$/)
     const deleteCall = sendMock.mock.calls[1]![0] as { __type: string; input: Record<string, unknown> }
     expect(deleteCall.__type).toBe('DeleteObjectCommand')
     expect(deleteCall.input['Key']).toBe('uploads/pending/drivers/7/profile_photo/abc.jpg')
-    expect(finalUrl).toMatch(/^https:\/\/ocar-docs\.s3\.ap-south-1\.amazonaws\.com\/drivers\/7\/profile_photo\/.+\.jpg$/)
+    expect(finalUrl).toMatch(/^https:\/\/waygo-docs\.s3\.ap-south-1\.amazonaws\.com\/drivers\/7\/profile_photo\/.+\.jpg$/)
   })
 })
 ```
@@ -236,12 +236,12 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('@/lib/storage', () => ({
   getUploadUrl: vi.fn().mockResolvedValue('https://signed.example.com/put'),
-  promotePendingUpload: vi.fn().mockResolvedValue('https://ocar-docs.s3.ap-south-1.amazonaws.com/drivers/7/profile_photo/xyz.jpg'),
+  promotePendingUpload: vi.fn().mockResolvedValue('https://waygo-docs.s3.ap-south-1.amazonaws.com/drivers/7/profile_photo/xyz.jpg'),
   getPresignedUrl: vi.fn().mockImplementation((url: string) => Promise.resolve(`${url}?signed=1`)),
 }))
 vi.mock('@/modules/drivers/drivers.repository', () => ({
   findDriverById: vi.fn().mockResolvedValue({ id: BigInt(7) }),
-  upsertDriverDocument: vi.fn().mockResolvedValue({ doc_type: 'profile_photo', file_url: 'https://ocar-docs.s3.ap-south-1.amazonaws.com/drivers/7/profile_photo/xyz.jpg', status: 'pending' }),
+  upsertDriverDocument: vi.fn().mockResolvedValue({ doc_type: 'profile_photo', file_url: 'https://waygo-docs.s3.ap-south-1.amazonaws.com/drivers/7/profile_photo/xyz.jpg', status: 'pending' }),
   setReferenceSelfie: vi.fn().mockResolvedValue(undefined),
 }))
 

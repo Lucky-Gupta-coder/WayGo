@@ -24,7 +24,7 @@ export default function NotificationToast() {
             <Bell size={15} strokeWidth={1.8} className="text-primary" />
           </span>
           <span className="flex-1 min-w-0">
-            <span className="block text-[13px] font-bold text-text-primary truncate">{toast.title ?? 'Ocar Admin'}</span>
+            <span className="block text-[13px] font-bold text-text-primary truncate">{toast.title ?? 'WayGo Admin'}</span>
             <span className="block text-xs text-text-muted truncate">{toast.body}</span>
           </span>
         </motion.button>

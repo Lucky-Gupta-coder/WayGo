@@ -36,7 +36,7 @@
 # -- deliberately NOT a `terraform workspace`, which switches state invisibly
 # and is easy to forget you're in. This file makes "which environment am I
 # about to touch" a visible, typed-out choice every time.
-bucket       = "ocar-terraform-state"
+bucket       = "waygo-terraform-state"
 key          = "staging/terraform.tfstate"
 region       = "ap-south-1"
 use_lockfile = true
@@ -78,7 +78,7 @@ environment = "staging"
 # runbook) -- prod's domain_name default can't be reused here, ACM would be
 # requesting/validating a cert for the same hostname a second, unrelated
 # Terraform state doesn't own.
-domain_name = "staging.ocar-api.clienttesting.in"
+domain_name = "staging.waygo-api.clienttesting.in"
 ```
 
 - [ ] **Step 2: Commit**
@@ -121,7 +121,7 @@ resource "aws_iam_role" "github_actions_staging" {
           "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
         }
         StringLike = {
-          "token.actions.githubusercontent.com:sub" = "repo:cardevelopment01-tech/Ocar-monorepo:ref:refs/heads/main"
+          "token.actions.githubusercontent.com:sub" = "repo:cardevelopment01-tech/WayGo-monorepo:ref:refs/heads/main"
         }
       }
     }]
@@ -353,7 +353,7 @@ certificate validation. Run:
 Add that CNAME in Cloudflare (DNS only, **not proxied** -- same as prod's
 existing record). Once it propagates, the apply finishes and outputs
 `alb_dns_name`. Add a second Cloudflare CNAME:
-`staging.ocar-api.clienttesting.in` -> that ALB DNS name (DNS only, not
+`staging.waygo-api.clienttesting.in` -> that ALB DNS name (DNS only, not
 proxied -- proxying would break the ALB's own TLS termination).
 
 ## 2. Neon database branch
@@ -400,7 +400,7 @@ current `api-env` as a starting template, then swap in:
   - `JWT_SECRET` -> a fresh, staging-only secret (never reuse prod's)
   - Any Fast2SMS/Exotel/FCM credentials per step 4's decision
 
-    aws ssm put-parameter --name "/ocar/staging/api-env" --type SecureString \
+    aws ssm put-parameter --name "/waygo/staging/api-env" --type SecureString \
       --value "$(cat staging-api-env.txt)" --overwrite
 
 ## 6. Tear down after the load test

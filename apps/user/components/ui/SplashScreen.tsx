@@ -27,7 +27,7 @@ export default function SplashScreen({ show, onComplete }: SplashScreenProps) {
     <AnimatePresence>
       {show && (
         <motion.div
-          key="ocar-splash"
+          key="waygo-splash"
           initial={{ opacity: 1, backgroundColor: '#0F0D1A' }}
           exit={
             reduce

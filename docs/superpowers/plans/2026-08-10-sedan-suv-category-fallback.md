@@ -36,7 +36,7 @@ Expected: output lists `086_remove_luxury_suv_fallback.sql` as applied, no error
 
 - [ ] **Step 3: Verify the table contents directly**
 
-Run: `docker exec ocar_postgres psql -U postgres -d ocar -c "SELECT s.slug AS category, h.slug AS accepts FROM category_fallback_rules cfr JOIN vehicle_categories s ON s.id = cfr.category_id JOIN vehicle_categories h ON h.id = cfr.accepts_category_id ORDER BY 1;"`
+Run: `docker exec ocar_postgres psql -U postgres -d waygo -c "SELECT s.slug AS category, h.slug AS accepts FROM category_fallback_rules cfr JOIN vehicle_categories s ON s.id = cfr.category_id JOIN vehicle_categories h ON h.id = cfr.accepts_category_id ORDER BY 1;"`
 Expected: exactly two rows — `sedan | hatchback` and `suv | sedan`. No `luxury` row.
 
 - [ ] **Step 4: Commit**
@@ -280,7 +280,7 @@ Expected: no errors.
 
 - [ ] **Step 5: Manual verification**
 
-Run: `docker exec ocar_postgres psql -U postgres -d ocar -c "SELECT body, version FROM notification_templates WHERE slug='ride_accepted' AND channel='push';"`
+Run: `docker exec ocar_postgres psql -U postgres -d waygo -c "SELECT body, version FROM notification_templates WHERE slug='ride_accepted' AND channel='push';"`
 Expected: body contains `{{upgradeNote}}`, version incremented by 1 from before.
 
 - [ ] **Step 6: Commit**

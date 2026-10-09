@@ -1,6 +1,6 @@
 services:
   api:
-    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/ocar-api:${IMAGE_TAG:-latest}
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/waygo-api:${IMAGE_TAG:-latest}
     container_name: ocar_api
     restart: unless-stopped
     env_file: .env.prod
@@ -13,7 +13,7 @@ services:
       - ocar_net
     # Generous starting ceiling, not yet a tuned value -- sized from cAdvisor
     # per-container data once real/load-tested traffic exists (see
-    # "Per-Container Resource Usage" row in ocar-overview.json). The point
+    # "Per-Container Resource Usage" row in waygo-overview.json). The point
     # right now is only to stop an unbounded leak from taking the whole
     # instance down via the kernel OOM-killer picking an arbitrary victim
     # container instead of just restarting `api`. Node 22 (see ci.yml) is

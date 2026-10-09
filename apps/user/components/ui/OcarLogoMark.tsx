@@ -23,7 +23,7 @@ export default function OcarLogoMark({ size = 'md', className }: OcarLogoMarkPro
   return (
     <img
       src="/logo-mark.png"
-      alt="Ocar"
+      alt="WayGo"
       width={w}
       height={h}
       className={cn('inline-block object-contain', className)}

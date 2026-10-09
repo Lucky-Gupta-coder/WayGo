@@ -43,7 +43,6 @@ function TripTypeContent() {
   const distanceKm         = parseFloat(sp.get('distanceKm') ?? '0')
   const durationMin        = parseFloat(sp.get('durationMin') ?? '0')
   const originCityId       = sp.get('originCityId') ? parseInt(sp.get('originCityId')!, 10) : undefined
-  const polyline           = sp.get('polyline') ?? undefined
   const scheduledFor       = sp.get('scheduledFor') ?? undefined
   const riderName          = sp.get('riderName') ?? undefined
   const riderPhone         = sp.get('riderPhone') ?? undefined
@@ -95,7 +94,6 @@ function TripTypeContent() {
       durationMin:        String(durationMin),
     })
     if (originCityId !== undefined) params.set('originCityId', String(originCityId))
-    if (polyline) params.set('polyline', polyline)
     if (scheduledFor) params.set('scheduledFor', scheduledFor)
     if (riderName)  params.set('riderName', riderName)
     if (riderPhone) params.set('riderPhone', riderPhone)

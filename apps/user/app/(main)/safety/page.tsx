@@ -56,7 +56,7 @@ export default function SafetyPage() {
           <div className="flex items-start gap-2">
             <Shield size={12} strokeWidth={2} className="text-text-muted mt-0.5 flex-shrink-0" />
             <p className="text-xs text-text-muted leading-relaxed">
-              All rides on Ocar are tracked end-to-end. Driver details including name, vehicle number and photo are verified before every trip.
+              All rides on WayGo are tracked end-to-end. Driver details including name, vehicle number and photo are verified before every trip.
             </p>
           </div>
         </div>

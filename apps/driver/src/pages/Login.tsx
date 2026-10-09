@@ -90,10 +90,10 @@ export default function Login() {
       if ((import.meta.env.DEV || import.meta.env.VITE_DEMO_MODE === 'true') && res.data.otp) setDevOtp(res.data.otp)
       setStep('otp'); setOtp(''); startCountdown()
     } catch (err: unknown) {
-      const code = (err as { response?: { data?: { code?: string } } })?.response?.data?.code
-      setError(code === 'AUTH_OTP_RATE_LIMITED'
+      const resData = (err as { response?: { data?: { code?: string; error?: string } } })?.response?.data
+      setError(resData?.code === 'AUTH_OTP_RATE_LIMITED'
         ? 'Too many attempts. Please wait before trying again.'
-        : 'Failed to send OTP. Please check your number.')
+        : resData?.error || 'Failed to send OTP. Please check your number.')
     } finally { otpRequestInFlightRef.current = false; setLoading(false) }
   }
 
@@ -304,7 +304,7 @@ export default function Login() {
       </motion.div>
 
       <p className="text-text-muted text-xs text-center mt-8 max-w-[280px] leading-relaxed">
-        By continuing, you agree to Ocar's Driver Partner Terms &amp; Conditions
+        By continuing, you agree to WayGo's Driver Partner Terms &amp; Conditions
       </p>
     </div>
   )

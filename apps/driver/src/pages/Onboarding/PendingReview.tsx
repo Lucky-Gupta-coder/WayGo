@@ -142,7 +142,7 @@ export default function PendingReview() {
         </div>
         <h1 className="text-2xl font-bold mb-3">Account Banned</h1>
         <p className="text-text-secondary text-sm leading-relaxed mb-8">
-          Your driver account has been permanently deactivated due to a violation of our terms. You are no longer eligible to drive on Ocar.
+          Your driver account has been permanently deactivated due to a violation of our terms. You are no longer eligible to drive on WayGo.
         </p>
         {driver.code && (
           <div className="bg-surface-2 border border-border rounded-2xl px-6 py-4 w-full max-w-xs">

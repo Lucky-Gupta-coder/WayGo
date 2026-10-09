@@ -12,7 +12,7 @@ vi.mock('@aws-sdk/s3-request-presigner', () => ({
   getSignedUrl: vi.fn().mockResolvedValue('https://signed.example.com/put-url'),
 }))
 vi.mock('@/config', () => ({
-  config: { S3_BUCKET_NAME: 'ocar-docs', S3_REGION: 'ap-south-1', S3_ACCESS_KEY: 'k', S3_SECRET_KEY: 's' },
+  config: { S3_BUCKET_NAME: 'waygo-docs', S3_REGION: 'ap-south-1', S3_ACCESS_KEY: 'k', S3_SECRET_KEY: 's' },
 }))
 
 import { getUploadUrl, promotePendingUpload } from '@/lib/storage'
@@ -28,7 +28,7 @@ describe('getUploadUrl', () => {
       expect.anything(),
       expect.objectContaining({
         input: expect.objectContaining({
-          Bucket: 'ocar-docs',
+          Bucket: 'waygo-docs',
           Key: 'uploads/pending/drivers/7/profile_photo/abc.jpg',
           ContentType: 'image/jpeg',
           ContentLength: 204800,
@@ -53,11 +53,11 @@ describe('promotePendingUpload', () => {
     expect(sendMock).toHaveBeenCalledTimes(2)
     const copyCall = sendMock.mock.calls[0]![0] as { __type: string; input: Record<string, unknown> }
     expect(copyCall.__type).toBe('CopyObjectCommand')
-    expect(copyCall.input['CopySource']).toBe('ocar-docs/uploads/pending/drivers/7/profile_photo/abc.jpg')
+    expect(copyCall.input['CopySource']).toBe('waygo-docs/uploads/pending/drivers/7/profile_photo/abc.jpg')
     expect(copyCall.input['Key']).toMatch(/^drivers\/7\/profile_photo\/.+\.jpg$/)
     const deleteCall = sendMock.mock.calls[1]![0] as { __type: string; input: Record<string, unknown> }
     expect(deleteCall.__type).toBe('DeleteObjectCommand')
     expect(deleteCall.input['Key']).toBe('uploads/pending/drivers/7/profile_photo/abc.jpg')
-    expect(finalUrl).toMatch(/^https:\/\/ocar-docs\.s3\.ap-south-1\.amazonaws\.com\/drivers\/7\/profile_photo\/.+\.jpg$/)
+    expect(finalUrl).toMatch(/^https:\/\/waygo-docs\.s3\.ap-south-1\.amazonaws\.com\/drivers\/7\/profile_photo\/.+\.jpg$/)
   })
 })

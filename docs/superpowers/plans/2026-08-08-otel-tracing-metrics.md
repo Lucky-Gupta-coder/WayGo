@@ -156,7 +156,7 @@ git commit -m "add metrics scrape+remote_write and OTLP trace receiver to Alloy 
 
 **Files:**
 - Modify: `.env.prod.example`
-- Modify (on the VPS only, NOT in this repo): `/home/ubuntu/Ocar-monorepo/.env.prod`
+- Modify (on the VPS only, NOT in this repo): `/home/ubuntu/WayGo-monorepo/.env.prod`
 
 - [ ] **Step 1: Add placeholders**
 
@@ -178,7 +178,7 @@ git commit -m "document Grafana Cloud Prometheus/Tempo env vars"
 
 - [ ] **Step 3: Add real values to the VPS's `.env.prod` — manual**
 
-Same pattern as the logging slice: SSH in, edit `/home/ubuntu/Ocar-monorepo/.env.prod` by hand, paste in the four values from Task 1.
+Same pattern as the logging slice: SSH in, edit `/home/ubuntu/WayGo-monorepo/.env.prod` by hand, paste in the four values from Task 1.
 
 ---
 
@@ -238,7 +238,7 @@ import { ATTR_SERVICE_NAME } from '@opentelemetry/semantic-conventions'
 export const pgInstrumentationConfig = { enhancedDatabaseReporting: false }
 
 const sdk = new NodeSDK({
-  resource: resourceFromAttributes({ [ATTR_SERVICE_NAME]: 'ocar-api' }),
+  resource: resourceFromAttributes({ [ATTR_SERVICE_NAME]: 'waygo-api' }),
   traceExporter: new OTLPTraceExporter({
     url: `${process.env['OTEL_EXPORTER_OTLP_ENDPOINT'] ?? 'http://alloy:4318'}/v1/traces`,
   }),
@@ -630,7 +630,7 @@ Same flow as the logging slice: merge this branch to `main`, push. CI rebuilds a
 
 ```bash
 ssh <user>@<vps-host>
-cd /home/ubuntu/Ocar-monorepo
+cd /home/ubuntu/WayGo-monorepo
 git pull
 docker compose -f docker-compose.prod.yml up -d node_exporter alloy
 docker logs ocar_alloy --tail 50
@@ -641,7 +641,7 @@ Expected: no `level=error` — specifically watch for auth failures on the new `
 
 ```bash
 docker exec ocar_api wget -qO- http://localhost:4000/metrics | head -20
-curl -sk https://ocar-api.clienttesting.in/metrics
+curl -sk https://waygo-api.clienttesting.in/metrics
 ```
 Expected: the first command shows real Prometheus-format output; the second returns nginx's 404 (confirming the Architecture note's claim that nginx never proxies this path).
 
@@ -651,7 +651,7 @@ Explore → switch datasource to the Prometheus/Mimir one (same dropdown pattern
 
 - [ ] **Step 5: Verify traces in Grafana Cloud**
 
-Hit `/health` a few times on the VPS, then Explore → Tempo datasource → search by service name `ocar-api`. Expected: traces appear, each showing spans for the HTTP request and (if it queried the DB) a child `pg` span — confirm the `pg` span does NOT show a raw SQL statement with bound values (the `enhancedDatabaseReporting: false` check from Task 5).
+Hit `/health` a few times on the VPS, then Explore → Tempo datasource → search by service name `waygo-api`. Expected: traces appear, each showing spans for the HTTP request and (if it queried the DB) a child `pg` span — confirm the `pg` span does NOT show a raw SQL statement with bound values (the `enhancedDatabaseReporting: false` check from Task 5).
 
 - [ ] **Step 6: Verify the log-trace correlation**
 

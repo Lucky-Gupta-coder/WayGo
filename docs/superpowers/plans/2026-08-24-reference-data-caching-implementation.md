@@ -1248,7 +1248,7 @@ Capture this once before Task 3 is deployed and once ~24h after, to show the dro
 
 - [ ] **Step 2: Add a Grafana panel for `cache_hits_total` / `cache_misses_total`**
 
-These two counters were added to `/metrics` in Task 2. Add a panel to the `ocar-overview` Grafana
+These two counters were added to `/metrics` in Task 2. Add a panel to the `waygo-overview` Grafana
 dashboard showing hit-rate per `table` label:
 `sum(rate(cache_hits_total[5m])) by (table) / (sum(rate(cache_hits_total[5m])) by (table) + sum(rate(cache_misses_total[5m])) by (table))`.
 Per the design doc: **a hit rate that is high but a stale-value complaint is the signal a

@@ -120,7 +120,7 @@ export default function OnboardingPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: EASE, delay: 0.1 }}
       >
-        <h1 className="text-2xl font-bold text-text-primary mb-1">Welcome to Ocar</h1>
+        <h1 className="text-2xl font-bold text-text-primary mb-1">Welcome to WayGo</h1>
         <p className="text-text-secondary text-sm mb-8">Tell us a bit about yourself to get started</p>
 
         <div className="relative mb-4">

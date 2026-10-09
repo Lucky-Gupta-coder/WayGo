@@ -69,7 +69,7 @@ export default function MaintenancePage() {
             onChange={e => setStatus(s => ({ ...s, message: e.target.value }))}
             rows={2}
             className="w-full px-3 py-2 text-sm border border-border rounded-xl outline-none focus:border-primary transition-colors"
-            placeholder="Ocar is briefly offline for maintenance."
+            placeholder="WayGo is briefly offline for maintenance."
           />
         </div>
 

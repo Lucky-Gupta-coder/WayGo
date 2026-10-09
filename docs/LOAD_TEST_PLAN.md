@@ -1,4 +1,4 @@
-# Ocar — Load Test Plan (for review & sign-off)
+# WayGo — Load Test Plan (for review & sign-off)
 
 This document describes what will be tested, on what environment, with what
 data, in what order, and what "pass" means — for review and approval before

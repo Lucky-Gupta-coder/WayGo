@@ -40,7 +40,7 @@ export async function startSetup(adminId: bigint): Promise<{ secret: string; qrD
   const secret = generateSecret()
   await repo.setPendingSecret(adminId, encryptTotpSecret(secret))
 
-  const uri = generateURI({ issuer: 'Ocar Admin', label: state.email, secret })
+  const uri = generateURI({ issuer: 'WayGo Admin', label: state.email, secret })
   const qrDataUrl = await QRCode.toDataURL(uri)
 
   return { secret, qrDataUrl }

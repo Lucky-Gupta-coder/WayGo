@@ -18,12 +18,12 @@ Confirmed via HashiCorp's own guidance and common real-world reference architect
 
 | Resource address | Current file | Real ID/ARN to import |
 |---|---|---|
-| `aws_s3_bucket.terraform_state` | `state-bucket.tf` | `ocar-terraform-state` |
-| `aws_s3_bucket_versioning.terraform_state` | `state-bucket.tf` | `ocar-terraform-state` |
+| `aws_s3_bucket.terraform_state` | `state-bucket.tf` | `waygo-terraform-state` |
+| `aws_s3_bucket_versioning.terraform_state` | `state-bucket.tf` | `waygo-terraform-state` |
 | `aws_kms_key.terraform_state` | `state-bucket.tf` | `761c1742-7dfc-4272-b44e-da30627f4283` |
-| `aws_kms_alias.terraform_state` | `state-bucket.tf` | `alias/ocar-terraform-state` |
-| `aws_s3_bucket_server_side_encryption_configuration.terraform_state` | `state-bucket.tf` | `ocar-terraform-state` |
-| `aws_s3_bucket_public_access_block.terraform_state` | `state-bucket.tf` | `ocar-terraform-state` |
+| `aws_kms_alias.terraform_state` | `state-bucket.tf` | `alias/waygo-terraform-state` |
+| `aws_s3_bucket_server_side_encryption_configuration.terraform_state` | `state-bucket.tf` | `waygo-terraform-state` |
+| `aws_s3_bucket_public_access_block.terraform_state` | `state-bucket.tf` | `waygo-terraform-state` |
 | `aws_iam_openid_connect_provider.github_actions` | `github-oidc.tf` | `arn:aws:iam::822127610728:oidc-provider/token.actions.githubusercontent.com` |
 
 Three call sites reference the OIDC provider's ARN and need updating from a `resource` reference to a `data` reference: `github-oidc.tf:27`, `github-oidc.tf:101`, `github-oidc.tf:216` (the `github_actions_plan`, `github_actions_deploy`, and `github_actions_staging` roles' trust policies).
@@ -49,7 +49,7 @@ Three call sites reference the OIDC provider's ARN and need updating from a `res
 
 - [ ] **Step 1: Check the main config's exact terraform/provider block to mirror**
 
-Read `infra/terraform/providers.tf` (already known from this session: `required_version = ">= 1.9.0"`, `aws` provider `~> 6.0`, `tls` provider `~> 4.0`) and `infra/terraform/variables.tf`'s `project_name` (default `"ocar"`) and `aws_region` (default `"ap-south-1"`) definitions.
+Read `infra/terraform/providers.tf` (already known from this session: `required_version = ">= 1.9.0"`, `aws` provider `~> 6.0`, `tls` provider `~> 4.0`) and `infra/terraform/variables.tf`'s `project_name` (default `"waygo"`) and `aws_region` (default `"ap-south-1"`) definitions.
 
 - [ ] **Step 2: Create `infra/terraform/bootstrap/variables.tf`**
 
@@ -63,7 +63,7 @@ Read `infra/terraform/providers.tf` (already known from this session: `required_
 variable "project_name" {
   type        = string
   description = "Short project name, used as a prefix/tag on resources"
-  default     = "ocar"
+  default     = "waygo"
 }
 
 variable "aws_region" {
@@ -96,7 +96,7 @@ terraform {
   }
 
   backend "s3" {
-    bucket       = "ocar-terraform-state"
+    bucket       = "waygo-terraform-state"
     key          = "bootstrap/terraform.tfstate"
     region       = "ap-south-1"
     use_lockfile = true
@@ -108,7 +108,7 @@ provider "aws" {
 
   default_tags {
     tags = {
-      Project   = "ocar"
+      Project   = "waygo"
       ManagedBy = "terraform"
       Scope     = "bootstrap"
     }
@@ -144,7 +144,7 @@ git commit -m "feat(infra): scaffold the bootstrap module's provider/backend con
 # not a per-environment resource.
 
 resource "aws_s3_bucket" "terraform_state" {
-  bucket = "ocar-terraform-state"
+  bucket = "waygo-terraform-state"
 
   tags = {
     Name = "${var.project_name}-terraform-state"
@@ -316,11 +316,11 @@ Federated = data.aws_iam_openid_connect_provider.github_actions.arn
 # infra/terraform/bootstrap/, not this config. Same reasoning as the OIDC
 # provider data source above.
 data "aws_s3_bucket" "terraform_state" {
-  bucket = "ocar-terraform-state"
+  bucket = "waygo-terraform-state"
 }
 
 data "aws_kms_key" "terraform_state" {
-  key_id = "alias/ocar-terraform-state"
+  key_id = "alias/waygo-terraform-state"
 }
 ```
 
@@ -370,12 +370,12 @@ Expected: clean, no diff. (Full `terraform validate` here will still reference t
 From `infra/terraform/bootstrap/` (already `terraform init`-ed in Task 4):
 
 ```bash
-terraform import aws_s3_bucket.terraform_state ocar-terraform-state
-terraform import aws_s3_bucket_versioning.terraform_state ocar-terraform-state
+terraform import aws_s3_bucket.terraform_state waygo-terraform-state
+terraform import aws_s3_bucket_versioning.terraform_state waygo-terraform-state
 terraform import aws_kms_key.terraform_state 761c1742-7dfc-4272-b44e-da30627f4283
-terraform import aws_kms_alias.terraform_state alias/ocar-terraform-state
-terraform import aws_s3_bucket_server_side_encryption_configuration.terraform_state ocar-terraform-state
-terraform import aws_s3_bucket_public_access_block.terraform_state ocar-terraform-state
+terraform import aws_kms_alias.terraform_state alias/waygo-terraform-state
+terraform import aws_s3_bucket_server_side_encryption_configuration.terraform_state waygo-terraform-state
+terraform import aws_s3_bucket_public_access_block.terraform_state waygo-terraform-state
 terraform import aws_iam_openid_connect_provider.github_actions arn:aws:iam::822127610728:oidc-provider/token.actions.githubusercontent.com
 ```
 Expected after each: `Import successful!`

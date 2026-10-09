@@ -235,7 +235,7 @@ The seed template (`api/src/db/migrations/036_notification_templates.sql:69-71`)
 
 ```sql
   ('ride_accepted', 'Ride accepted (SMS to rider)', 'sms', NULL,
-   'Ocar: {{driverName}}{{driverPhoneSuffix}} has accepted your ride and is on the way to pick you up.',
+   'WayGo: {{driverName}}{{driverPhoneSuffix}} has accepted your ride and is on the way to pick you up.',
    '{"required": ["driverName"], "optional": ["driverPhoneSuffix"]}'),
 ```
 
@@ -246,7 +246,7 @@ Create `api/src/db/migrations/065_ride_accepted_sms_no_phone.sql` (or the next f
 -- (via {{driverPhoneSuffix}}), leaking it to the rider independent of the
 -- app/socket masking fixed elsewhere in this plan.
 UPDATE notification_templates
-SET body = 'Ocar: {{driverName}} has accepted your ride and is on the way to pick you up.',
+SET body = 'WayGo: {{driverName}} has accepted your ride and is on the way to pick you up.',
     variables_schema = '{"required": ["driverName"], "optional": []}',
     version = version + 1
 WHERE slug = 'ride_accepted' AND channel = 'sms' AND is_active;

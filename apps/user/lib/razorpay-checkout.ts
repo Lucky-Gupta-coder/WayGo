@@ -25,7 +25,7 @@ export async function openRidePaymentCheckout(
     order_id: opts.orderId,
     amount: Math.round(opts.amount * 100),
     currency: 'INR',
-    name: 'Ocar',
+    name: 'WayGo',
     description: `Ride #${rideId}`,
     handler: async (response: {
       razorpay_order_id: string

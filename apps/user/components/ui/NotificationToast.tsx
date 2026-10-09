@@ -19,7 +19,7 @@ function ToastCard({ toast, onOpen }: { toast: NotificationItem; onOpen: () => v
         <Icon size={15} strokeWidth={1.8} className={tint.text} />
       </span>
       <span className="flex-1 min-w-0">
-        <span className="block text-[13px] font-bold text-text-primary truncate">{toast.title ?? 'Ocar'}</span>
+        <span className="block text-[13px] font-bold text-text-primary truncate">{toast.title ?? 'WayGo'}</span>
         <span className="block text-[12px] text-text-muted truncate">{toast.body}</span>
       </span>
     </button>

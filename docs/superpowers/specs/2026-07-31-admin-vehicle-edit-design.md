@@ -27,7 +27,7 @@ Out of scope: vehicle document file replacement (stays on existing approve/rejec
   - Same whitelist-column `SET` builder + `BEGIN` / `SELECT ... FOR UPDATE` / `UPDATE` / `COMMIT` transaction as `updateDriverProfile`.
   - `recordAuditLog({ action: 'vehicles.profile_correction', targetTable: 'driver_vehicles', targetId: vehicleId, beforeState, afterState, reason, ipAddress })`.
   - `number_plate` has a DB unique constraint — catch the unique-violation error (Postgres code `23505`) and surface a clean validation error (no raw `error.message`, per security rules).
-- After successful update: `notifyOwner({ ownerType: 'driver', ownerId: driverId, type: 'vehicle_corrected', title: 'Vehicle details updated', body: 'Your vehicle details were updated by Ocar support.', payload: { route: 'vehicle' } })`.
+- After successful update: `notifyOwner({ ownerType: 'driver', ownerId: driverId, type: 'vehicle_corrected', title: 'Vehicle details updated', body: 'Your vehicle details were updated by WayGo support.', payload: { route: 'vehicle' } })`.
 - Types: add `UpdateDriverVehiclePayload` to `admin.types.ts` alongside `UpdateDriverProfilePayload`.
 
 ## Frontend

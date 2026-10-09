@@ -125,8 +125,8 @@ throughout this config (e.g. `dynamic "ingress"` in `security-groups.tf`).
 | `aws_lb_target_group.api` | `for_each` over color. Same `/health` check as today. |
 | `aws_lb_listener.https` `default_action` | Points at whichever color's target group is currently active. Add `lifecycle { ignore_changes = [default_action] }` — the listener flip happens via an `aws elbv2 modify-listener` CLI call from the deploy workflow, **not** `terraform apply`, so Terraform must not fight it on the next plan. This mirrors how `image-tag`/`api-env` SSM parameters already work today: Terraform owns the *shape*, the deploy pipeline owns *what's currently live*. |
 | `aws_lb_listener_rule` (new) | Header-based preview rule: `X-Deploy-Preview: blue` / `green` → routes straight to that color's target group, bypassing whichever is "default." Same pattern already established by the existing `maintenance` listener rule in `alb.tf` — nothing new conceptually, just a second rule. This is how the deploy workflow smoke-tests the idle color through the real public ALB (real TLS, real DNS) before it's ever live. |
-| `aws_ssm_parameter` (new, x2) | `/ocar/{environment}/blue/image-tag` and `/.../green/image-tag` replace the single shared `image-tag` parameter — each color's launch template reads only its own, so updating green's tag can never affect a currently-running blue instance. |
-| `aws_ssm_parameter.active_color` (new) | `/ocar/{environment}/active-color` — single source of truth for "which color is currently live," read by the deploy workflow at the start of every deploy to compute the idle color. Same pattern as the existing `image-tag` parameter. |
+| `aws_ssm_parameter` (new, x2) | `/waygo/{environment}/blue/image-tag` and `/.../green/image-tag` replace the single shared `image-tag` parameter — each color's launch template reads only its own, so updating green's tag can never affect a currently-running blue instance. |
+| `aws_ssm_parameter.active_color` (new) | `/waygo/{environment}/active-color` — single source of truth for "which color is currently live," read by the deploy workflow at the start of every deploy to compute the idle color. Same pattern as the existing `image-tag` parameter. |
 | `iam.tf`'s `read_boot_parameters` policy | Extend `Resource` list to cover both per-color image-tag parameter ARNs (currently scoped to the single shared one). |
 | ASG `tag` blocks | Add a `Color` tag (`blue`/`green`) — lets Grafana/Alloy dashboards split metrics by color during a deploy, and lets you `aws ec2 describe-instances --filters Name=tag:Color,...` when debugging which color an instance belongs to. |
 
@@ -140,12 +140,12 @@ Current flow (per `CLAUDE.md`): pull new image → run migrations → cut over
 container → `/health` check → smoke-test → auto-rollback to previous image
 tag on failure. New flow, same shape, different mechanics:
 
-1. **Read active color** from `/ocar/{env}/active-color` SSM param. `idle = active == 'blue' ? 'green' : 'blue'`.
-2. **Write the new image tag** to the *idle* color's own SSM parameter only (`/ocar/{env}/{idle}/image-tag`) — the active color's parameter is untouched, so its running instances have no reason to change.
+1. **Read active color** from `/waygo/{env}/active-color` SSM param. `idle = active == 'blue' ? 'green' : 'blue'`.
+2. **Write the new image tag** to the *idle* color's own SSM parameter only (`/waygo/{env}/{idle}/image-tag`) — the active color's parameter is untouched, so its running instances have no reason to change.
 3. **Run migrations** against the shared RDS instance (same ad-hoc migration container pattern already in place) — must be additive/backward-compatible per §2.
 4. **Scale the idle color's ASG up** to `desired_capacity = 2` (`aws autoscaling update-auto-scaling-group`). New instances boot, pull the new image tag from their own SSM parameter, register with their target group.
 5. **Wait for idle color's targets to pass ELB health checks** (`aws elbv2 describe-target-health`, poll until healthy — same `/health` endpoint already used).
-6. **Smoke test the idle color directly**, through the public ALB, using the header-preview listener rule (`curl -H "X-Deploy-Preview: <idle>" https://api.ocar.../api/v1/geo/cities`) — same smoke check already in the current pipeline, just aimed at the idle color specifically instead of "whatever's live."
+6. **Smoke test the idle color directly**, through the public ALB, using the header-preview listener rule (`curl -H "X-Deploy-Preview: <idle>" https://api.waygo.../api/v1/geo/cities`) — same smoke check already in the current pipeline, just aimed at the idle color specifically instead of "whatever's live."
 7. **If the smoke test fails:** scale the idle color back to 0, leave the active color untouched, fail the deploy loudly. Nothing user-facing ever changed.
 8. **If it passes: flip the listener.** `aws elbv2 modify-listener --default-actions ...` pointing `default_action` at the idle color's target group. This is the one atomic moment traffic actually moves — a single API call, no propagation delay.
 9. **Update `active-color`** SSM parameter to the (now-live) idle color.

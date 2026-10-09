@@ -70,7 +70,7 @@ Expected: output includes `084_city_wise_rental_packages.sql` applied, no errors
 
 - [ ] **Step 3: Verify the schema change**
 
-Run: `docker exec ocar_postgres psql -U postgres -d ocar -c "\d rental_packages"`
+Run: `docker exec ocar_postgres psql -U postgres -d waygo -c "\d rental_packages"`
 Expected: `city_id` column present, `rental_packages_category_duration_km_idx` and `rental_packages_city_lookup_idx` listed under Indexes, old `rental_packages_category_duration_km_key` gone.
 
 - [ ] **Step 4: Commit**
@@ -1132,7 +1132,7 @@ Expected: no errors in any of the three.
 - [ ] **Step 2: End-to-end manual check via SQL + curl**
 
 ```bash
-docker exec ocar_postgres psql -U postgres -d ocar -c "SELECT id, category_id, city_id, duration_minutes, km_limit, package_fare FROM rental_packages ORDER BY category_id, city_id NULLS FIRST LIMIT 10"
+docker exec ocar_postgres psql -U postgres -d waygo -c "SELECT id, category_id, city_id, duration_minutes, km_limit, package_fare FROM rental_packages ORDER BY category_id, city_id NULLS FIRST LIMIT 10"
 ```
 Expected: existing rows all show `city_id = NULL` (global, unaffected by the migration).
 

@@ -8,7 +8,7 @@ Terraform root module, replacing the manual-UI plan in
 `docs/superpowers/plans/2026-08-09-grafana-alerting-billing-synthetic-runbook.md`.
 
 **Architecture:** New singleton root module `infra/terraform/observability/`, own state file in the
-existing `ocar-terraform-state` S3 bucket, same pattern as `infra/terraform/bootstrap/`. Applied
+existing `waygo-terraform-state` S3 bucket, same pattern as `infra/terraform/bootstrap/`. Applied
 locally, not from CI. No application code changes — every metric already exists.
 
 **Tech Stack:** Terraform, `grafana/grafana` provider (~> 3.0), Grafana Cloud (Alerting, SLO,
@@ -88,7 +88,7 @@ terraform {
   }
 
   backend "s3" {
-    bucket       = "ocar-terraform-state"
+    bucket       = "waygo-terraform-state"
     key          = "observability/terraform.tfstate"
     region       = "ap-south-1"
     use_lockfile = true
@@ -179,7 +179,7 @@ git commit -m "feat(infra): scaffold observability Terraform module"
 # the Grafana UI; the next apply would silently clobber the UI edit.
 
 resource "grafana_contact_point" "default" {
-  name = "ocar-alerts"
+  name = "waygo-alerts"
 
   slack {
     url = var.slack_webhook_url
@@ -217,8 +217,8 @@ Type `yes` when prompted. Expected: `Apply complete! Resources: 2 added, 0 chang
 
 - [ ] **Step 4: Verify in Grafana Cloud UI**
 
-Alerting → Contact points → confirm "ocar-alerts" exists with both Slack and email integrations.
-Alerting → Notification policies → confirm the root policy routes to "ocar-alerts".
+Alerting → Contact points → confirm "waygo-alerts" exists with both Slack and email integrations.
+Alerting → Notification policies → confirm the root policy routes to "waygo-alerts".
 Click "Test" on the contact point — confirm a test message arrives in Slack and email. (This only
 proves the integrations work, not routing — routing gets verified in Task 3's Step 5.)
 
@@ -247,11 +247,11 @@ git commit -m "feat(infra): provision Grafana Cloud contact point and notificati
 # of truth for what's actually deployed.
 
 resource "grafana_folder" "alerts" {
-  title = "Ocar Alerts"
+  title = "WayGo Alerts"
 }
 
 resource "grafana_rule_group" "static_thresholds" {
-  name             = "ocar-static-thresholds"
+  name             = "waygo-static-thresholds"
   folder_uid       = grafana_folder.alerts.uid
   interval_seconds = 60
 
@@ -291,7 +291,7 @@ resource "grafana_rule_group" "static_thresholds" {
 
     annotations = {
       summary     = "5xx ratio on rides/payments routes exceeded 5% over 5m"
-      runbook_url = "https://github.com/cardevelopment01-tech/Ocar-monorepo/blob/main/docs/superpowers/plans/2026-08-09-grafana-alerting-billing-synthetic-runbook.md"
+      runbook_url = "https://github.com/cardevelopment01-tech/WayGo-monorepo/blob/main/docs/superpowers/plans/2026-08-09-grafana-alerting-billing-synthetic-runbook.md"
     }
     labels         = { severity = "warning" }
     no_data_state  = "OK"
@@ -334,7 +334,7 @@ resource "grafana_rule_group" "static_thresholds" {
 
     annotations = {
       summary     = "5xx ratio on rides/payments routes exceeded 15% over 2m"
-      runbook_url = "https://github.com/cardevelopment01-tech/Ocar-monorepo/blob/main/docs/superpowers/plans/2026-08-09-grafana-alerting-billing-synthetic-runbook.md"
+      runbook_url = "https://github.com/cardevelopment01-tech/WayGo-monorepo/blob/main/docs/superpowers/plans/2026-08-09-grafana-alerting-billing-synthetic-runbook.md"
     }
     labels         = { severity = "critical" }
     no_data_state  = "OK"
@@ -377,7 +377,7 @@ resource "grafana_rule_group" "static_thresholds" {
 
     annotations = {
       summary     = "pg.Pool has >= 3 connections waiting for 5m -- requests are queuing behind the pool"
-      runbook_url = "https://github.com/cardevelopment01-tech/Ocar-monorepo/blob/main/docs/superpowers/plans/2026-08-09-grafana-alerting-billing-synthetic-runbook.md"
+      runbook_url = "https://github.com/cardevelopment01-tech/WayGo-monorepo/blob/main/docs/superpowers/plans/2026-08-09-grafana-alerting-billing-synthetic-runbook.md"
     }
     labels         = { severity = "warning" }
     no_data_state  = "OK"
@@ -420,7 +420,7 @@ resource "grafana_rule_group" "static_thresholds" {
 
     annotations = {
       summary     = "GPS breadcrumb flush p95 latency exceeded 1s for 5m"
-      runbook_url = "https://github.com/cardevelopment01-tech/Ocar-monorepo/blob/main/docs/superpowers/plans/2026-08-09-grafana-alerting-billing-synthetic-runbook.md"
+      runbook_url = "https://github.com/cardevelopment01-tech/WayGo-monorepo/blob/main/docs/superpowers/plans/2026-08-09-grafana-alerting-billing-synthetic-runbook.md"
     }
     labels         = { severity = "warning" }
     no_data_state  = "OK"
@@ -463,7 +463,7 @@ resource "grafana_rule_group" "static_thresholds" {
 
     annotations = {
       summary     = "Host disk usage exceeded 85% for 10m"
-      runbook_url = "https://github.com/cardevelopment01-tech/Ocar-monorepo/blob/main/docs/superpowers/plans/2026-08-09-grafana-alerting-billing-synthetic-runbook.md"
+      runbook_url = "https://github.com/cardevelopment01-tech/WayGo-monorepo/blob/main/docs/superpowers/plans/2026-08-09-grafana-alerting-billing-synthetic-runbook.md"
     }
     labels         = { severity = "warning" }
     no_data_state  = "OK"
@@ -493,7 +493,7 @@ Type `yes`. Expected: `Apply complete! Resources: 2 added, 0 changed, 0 destroye
 
 - [ ] **Step 4: Verify in Grafana Cloud UI**
 
-Alerting → Alert rules → "Ocar Alerts" folder → confirm all 5 rules exist (2 error-rate severities
+Alerting → Alert rules → "WayGo Alerts" folder → confirm all 5 rules exist (2 error-rate severities
 + pool + GPS-flush + disk), each showing the correct `for` duration and threshold.
 
 - [ ] **Step 5: Verify real routing (not just the contact point test)**
@@ -530,7 +530,7 @@ git commit -m "feat(infra): provision static-threshold Grafana Cloud alert rules
 # before the hard cutoff, no separate math to get wrong.
 
 resource "grafana_rule_group" "billing_usage" {
-  name             = "ocar-billing-usage"
+  name             = "waygo-billing-usage"
   folder_uid       = grafana_folder.alerts.uid
   interval_seconds = 300
 
@@ -570,7 +570,7 @@ resource "grafana_rule_group" "billing_usage" {
 
     annotations = {
       summary     = "Active series usage is at or above 85% of the 10,000-series free-tier cap"
-      runbook_url = "https://github.com/cardevelopment01-tech/Ocar-monorepo/blob/main/docs/superpowers/plans/2026-08-09-grafana-alerting-billing-synthetic-runbook.md"
+      runbook_url = "https://github.com/cardevelopment01-tech/WayGo-monorepo/blob/main/docs/superpowers/plans/2026-08-09-grafana-alerting-billing-synthetic-runbook.md"
     }
     labels         = { severity = "warning" }
     no_data_state  = "OK"
@@ -613,7 +613,7 @@ resource "grafana_rule_group" "billing_usage" {
 
     annotations = {
       summary     = "Logs usage is at or above 85% of the 50GB free-tier cap"
-      runbook_url = "https://github.com/cardevelopment01-tech/Ocar-monorepo/blob/main/docs/superpowers/plans/2026-08-09-grafana-alerting-billing-synthetic-runbook.md"
+      runbook_url = "https://github.com/cardevelopment01-tech/WayGo-monorepo/blob/main/docs/superpowers/plans/2026-08-09-grafana-alerting-billing-synthetic-runbook.md"
     }
     labels         = { severity = "warning" }
     no_data_state  = "OK"
@@ -656,7 +656,7 @@ resource "grafana_rule_group" "billing_usage" {
 
     annotations = {
       summary     = "Traces usage is at or above 85% of the 50GB free-tier cap"
-      runbook_url = "https://github.com/cardevelopment01-tech/Ocar-monorepo/blob/main/docs/superpowers/plans/2026-08-09-grafana-alerting-billing-synthetic-runbook.md"
+      runbook_url = "https://github.com/cardevelopment01-tech/WayGo-monorepo/blob/main/docs/superpowers/plans/2026-08-09-grafana-alerting-billing-synthetic-runbook.md"
     }
     labels         = { severity = "warning" }
     no_data_state  = "OK"
@@ -684,7 +684,7 @@ Type `yes`. Expected: `Apply complete! Resources: 1 added, 0 changed, 0 destroye
 
 - [ ] **Step 4: Verify in Grafana Cloud UI**
 
-Alerting → Alert rules → "Ocar Alerts" folder → confirm all 3 billing rules exist and show
+Alerting → Alert rules → "WayGo Alerts" folder → confirm all 3 billing rules exist and show
 evaluated (non-error) state — a value near the real current usage, not "no data".
 
 - [ ] **Step 5: Commit**
@@ -712,8 +712,8 @@ git commit -m "feat(infra): provision Grafana Cloud free-tier usage alerts"
 # certbot-can-silently-fail reason it was first proposed for.
 
 resource "grafana_synthetic_monitoring_check" "health" {
-  job       = "ocar-api-health"
-  target    = "https://ocar-api.clienttesting.in/health"
+  job       = "waygo-api-health"
+  target    = "https://waygo-api.clienttesting.in/health"
   enabled   = true
   probes    = var.synthetic_probe_ids
   frequency = 60000
@@ -756,7 +756,7 @@ Type `yes`. Expected: `Apply complete! Resources: 1 added, 0 changed, 0 destroye
 
 - [ ] **Step 4: Verify in Grafana Cloud UI**
 
-Testing & synthetics → Synthetic Monitoring → confirm "ocar-api-health" check exists, is enabled,
+Testing & synthetics → Synthetic Monitoring → confirm "waygo-api-health" check exists, is enabled,
 and its first execution (within ~60s) shows green across all configured probes.
 
 - [ ] **Step 5: Commit**
@@ -786,7 +786,7 @@ git commit -m "feat(infra): provision synthetic /health uptime check"
 # higher request rates).
 
 locals {
-  runbook_url = "https://github.com/cardevelopment01-tech/Ocar-monorepo/blob/main/docs/superpowers/specs/2026-08-16-grafana-cloud-alerting-terraform-design.md"
+  runbook_url = "https://github.com/cardevelopment01-tech/WayGo-monorepo/blob/main/docs/superpowers/specs/2026-08-16-grafana-cloud-alerting-terraform-design.md"
 }
 
 resource "grafana_slo" "ride_success" {
@@ -811,7 +811,7 @@ resource "grafana_slo" "ride_success" {
 
   label {
     key   = "service"
-    value = "ocar-api"
+    value = "waygo-api"
   }
 
   alerting {
@@ -854,7 +854,7 @@ resource "grafana_slo" "payment_success" {
 
   label {
     key   = "service"
-    value = "ocar-api"
+    value = "waygo-api"
   }
 
   alerting {

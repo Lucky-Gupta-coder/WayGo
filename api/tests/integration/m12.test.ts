@@ -19,7 +19,7 @@ vi.mock('@/lib/storage', () => ({
 const app = createApp()
 
 const PHONES = { analyticsUser: '+919700000401', analyticsDriver: '+919700000402' } as const
-const ADMIN_EMAIL = 'm12-analytics-admin@ocar.app'
+const ADMIN_EMAIL = 'm12-analytics-admin@waygo.app'
 const ADMIN_PASSWORD = 'Admin@1234'
 
 let categoryId: number

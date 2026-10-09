@@ -6,7 +6,7 @@ import { hashPassword } from '@/lib/hash'
 /** Real admin login — mirrors m02.test.ts's proven pattern (TC-M02 admin tests). */
 export async function loginAdmin(
   app: Express,
-  email = 'admin@ocar.app',
+  email = 'admin@waygo.app',
   password = 'Admin@1234'
 ) {
   const res = await request(app)
@@ -25,7 +25,7 @@ export async function loginAdmin(
 /**
  * Seeds a real admin row for tests to log in against — there is no pre-seeded
  * admin in the test DB (only m02.test.ts's own beforeAll/afterAll-scoped
- * admin@ocar.app exists, and only for the duration of that file's run). Every
+ * admin@waygo.app exists, and only for the duration of that file's run). Every
  * test file needing an admin principal seeds/deletes its own via this helper,
  * using a distinct email to avoid any cross-file collision.
  */

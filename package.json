@@ -12,6 +12,7 @@
     "test:api": "cd api && pnpm test",
     "lint": "turbo run lint",
     "migrate": "cd api && pnpm migrate",
+    "seed:demo-driver": "cd api && pnpm seed:demo-driver",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
     "docker:logs": "docker compose logs -f",

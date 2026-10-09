@@ -9,7 +9,7 @@ import { seedAdmin, loginAdmin, cleanupAdmins } from '../helpers/fixtures/safety
 const app = createApp()
 
 const PHONES = { notifUser: '+919700000201', notifUser2: '+919700000202' } as const
-const TEMPLATES_ADMIN_EMAIL = 'm10-templates-admin@ocar.app'
+const TEMPLATES_ADMIN_EMAIL = 'm10-templates-admin@waygo.app'
 
 afterAll(async () => {
   await cleanupRideAndDriverData(pool, [...Object.values(PHONES)])

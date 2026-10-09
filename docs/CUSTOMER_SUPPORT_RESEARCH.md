@@ -1,4 +1,4 @@
-# Customer Support for Ocar — Research & Recommendation
+# Customer Support for WayGo — Research & Recommendation
 
 **Date:** 2026-08-24
 **Prepared for:** management review
@@ -14,7 +14,7 @@ Three things, in order of importance:
 1. **A 24×7 control room is a legal licensing requirement for cab aggregators in India, not a
    product feature.** This changes the question from "what is the cheapest way to add support" to
    "what does the licence require us to have."
-2. **Ocar already has roughly 60% of the technical plumbing built** — masked calling, SOS alerts,
+2. **WayGo already has roughly 60% of the technical plumbing built** — masked calling, SOS alerts,
    a disputes system, in-ride chat, and multi-channel notifications. All of it is the
    *agent-facing* layer, not the customer-facing one.
 3. **Buy the helpdesk, extend the telephony we already have, build only the ride-context
@@ -27,7 +27,7 @@ Three things, in order of importance:
 
 Under India's **Motor Vehicle Aggregator Guidelines**, a licensed aggregator must:
 
-| Requirement | Implication for Ocar |
+| Requirement | Implication for WayGo |
 |---|---|
 | Operate a **24×7 control room** with published telephone contact, capable of monitoring vehicle movement | Round-the-clock staffing, not business hours. An inbound phone line is mandatory. |
 | Provide assistance in **English and the official state language** | Odia-language support for Odisha operations. |
@@ -83,7 +83,7 @@ centre first, chat second, an emergency/SOS line kept distinct from general supp
 
 ---
 
-## 03. What Ocar already has
+## 03. What WayGo already has
 
 This is the part that changes the build/buy maths. Verified against the codebase:
 
@@ -128,7 +128,7 @@ first version, followed by permanent maintenance, on a team that currently has f
 eighteen open infrastructure gaps. It would also be strictly worse than a mature ₹800–2,000/agent/month
 commodity product for at least two years.
 
-**There is no competitive advantage in owning ticket routing.** Riders do not choose Ocar because
+**There is no competitive advantage in owning ticket routing.** Riders do not choose WayGo because
 of its internal helpdesk.
 
 ### Buying — where it genuinely fits
@@ -163,7 +163,7 @@ list prices move and Indian pricing is often negotiable.
 | **Zendesk** | — | ~₹1,800 (Suite Team) | The enterprise-grade option with the deepest customisation and marketplace; the most expensive by a distance. |
 | **Intercom** | Usage-based | — | Built around in-app messaging rather than ticket volume. Its Fin AI agent pioneered per-resolution pricing at $0.99; Zendesk's equivalent is around $2.00 per automated resolution. |
 
-**Assessment for Ocar:** **Zoho Desk** is the strongest fit — same corporate entity for
+**Assessment for WayGo:** **Zoho Desk** is the strongest fit — same corporate entity for
 support and contracting, materially cheaper, and the light-agent tier fits a small ops team well.
 Freshdesk is the credible alternative if the integration ecosystem matters more than price.
 Zendesk is hard to justify at this scale. Intercom's model suits product-led SaaS more than a

@@ -3,7 +3,7 @@
 **Date:** 2026-07-11
 **Trigger:** Client wants navigation "like Uber." Following the traffic-layer patch (see status
 note in `docs/MAP_NAVIGATION_AUDIT_AND_PROPOSAL.md`, 2026-07-11), this doc researches what
-Uber/industry actually does end-to-end, then right-sizes it to what Ocar (3 fixed corridors,
+Uber/industry actually does end-to-end, then right-sizes it to what WayGo (3 fixed corridors,
 Bhubaneswar/Cuttack/Puri, single-vendor Google Maps stack) should actually build.
 
 > **Status note (2026-07-11): Phases 1, 2, and 4 implemented; Phase 3 needs one manual console step.**
@@ -49,14 +49,14 @@ Bhubaneswar/Cuttack/Puri, single-vendor Google Maps stack) should actually build
 ## 0. The one assumption this whole doc rests on — read first
 
 **"Like Uber" is not one thing — it's a menu, and most of it doesn't apply here.** Uber's
-navigation stack is inseparable from three problems Ocar doesn't have: (1) global coverage
+navigation stack is inseparable from three problems WayGo doesn't have: (1) global coverage
 across countries with no single good map vendor, (2) tens of millions of trips/day generating
 enough GPS probe density to *build your own* traffic data, and (3) a dedicated ML platform team
 whose job is exactly this. Below, every technique is researched honestly, then explicitly marked
-**adopt / defer / decline** for Ocar's actual scale. Where I decline something, I say why —
+**adopt / defer / decline** for WayGo's actual scale. Where I decline something, I say why —
 that's the point of this doc, not a gap to feel bad about.
 
-If this framing is wrong — if the client genuinely wants Ocar to build proprietary routing/ML
+If this framing is wrong — if the client genuinely wants WayGo to build proprietary routing/ML
 infra regardless of cost — that's a real scope/budget conversation to have explicitly before
 Phase 3+ below, not something to assume silently.
 
@@ -71,10 +71,10 @@ from open-source engines, so it can bake in proprietary traffic and cost models.
 size, the realistic building blocks are the same three open-source engines everyone in this space
 uses:
 
-| Engine | Model | Traffic support | Fit for Ocar |
+| Engine | Model | Traffic support | Fit for WayGo |
 |---|---|---|---|
 | **OSRM** | Contraction hierarchies, fastest queries | No built-in live traffic feed, but MLD algorithm supports dynamic edge-weight updates without a full graph rebuild — you still have to supply the traffic data yourself | Good if we ever self-host, but "you supply the traffic data" is the whole hard problem |
-| **Valhalla** | Dynamic costing, flexible per-request options (JSON costing at query time, no rebuild) | Same story — no built-in feed, costing model needs custom traffic ingestion | Better fit *if* self-hosting, since Ocar's fleet is tiny and query-time flexibility matters more than raw throughput |
+| **Valhalla** | Dynamic costing, flexible per-request options (JSON costing at query time, no rebuild) | Same story — no built-in feed, costing model needs custom traffic ingestion | Better fit *if* self-hosting, since WayGo's fleet is tiny and query-time flexibility matters more than raw throughput |
 | **GraphHopper** | Dijkstra + contraction hierarchies | Same | Aimed at higher-volume continental routing — overkill for 3 cities |
 
 **Key finding that matters most:** none of these three engines ship live traffic out of the box —
@@ -82,11 +82,11 @@ Uber, Lyft, and everyone else feeds them their **own** probe-vehicle speed data.
 routing engine and getting *worse* traffic awareness than Google's default output would be a
 regression, not an upgrade, unless the traffic-ingestion problem (§1.2) is solved first.
 
-**Decision for Ocar: decline self-hosting for now.** Google's Routes/Directions API already gives
+**Decision for WayGo: decline self-hosting for now.** Google's Routes/Directions API already gives
 traffic-aware routing (`departure_time=now`, or the newer `TRAFFIC_AWARE_OPTIMAL` preference on
 the Routes API) tuned on Android device density — which is *particularly strong in India*, per
 the existing audit doc's §2.3 research. Self-hosting would trade a known-good traffic signal for
-an infra project, for zero traffic-quality gain, unless Ocar's own fleet is large enough to
+an infra project, for zero traffic-quality gain, unless WayGo's own fleet is large enough to
 generate usable probe density (see §1.2 — it isn't, yet).
 
 ### 1.2 Where live traffic data actually comes from
@@ -102,17 +102,17 @@ models exist:
 2. **Third-party traffic feed (what almost everyone else does, including us today):** buy it —
    Google's `TrafficLayer` / `departure_time=now`, HERE Traffic API, TomTom, etc.
 
-**Ocar's actual probe density:** a few hundred active drivers across 3 corridors is nowhere near
+**WayGo's actual probe density:** a few hundred active drivers across 3 corridors is nowhere near
 what's needed to self-derive traffic speeds with any reliability — Google's crowdsourced signal,
 built from the entire population of Android phones in Odisha, will always be more accurate than
-anything Ocar could build from its own fleet at this scale.
+anything WayGo could build from its own fleet at this scale.
 
 **Decision: decline building a proprietary traffic-ingestion pipeline.** This is the single
 biggest "looks like Uber" temptation to avoid — it's a multi-quarter data-engineering project
 that would produce a *worse* signal than the Google API call already in place. Revisit only if/when
-Ocar's own trip volume per corridor is high enough to be probe-dense (a concrete, measurable
+WayGo's own trip volume per corridor is high enough to be probe-dense (a concrete, measurable
 trigger, not a vibe) — realistically hundreds of concurrent trips per corridor, which is an
-order of magnitude past where Ocar is today.
+order of magnitude past where WayGo is today.
 
 ### 1.3 Map matching (snapping GPS to the road)
 
@@ -122,18 +122,18 @@ near each noisy GPS fix are scored on (a) proximity to the fix and (b) transitio
 from the previous fix's most-likely segment, and the most probable *path* through time is decoded
 — not just the nearest point at each instant in isolation.
 
-**What Ocar has today:** `apps/driver/src/lib/geo.ts`'s `nearestPointOnPolyline()` — a plain
+**What WayGo has today:** `apps/driver/src/lib/geo.ts`'s `nearestPointOnPolyline()` — a plain
 nearest-point projection onto the known route polyline, no history, no transition probabilities.
 This works *only* because the driver is already following a known route (the polyline came from
 the routing call) — it's snapping to "the one road we told you to take," not general-purpose
 map-matching onto an entire road network. That distinction matters: full HMM map-matching solves
-"which of these 6 parallel roads is the vehicle actually on," which isn't Ocar's problem once a
-route is chosen. It becomes Ocar's problem only for **off-route detection accuracy** — see §3.1.
+"which of these 6 parallel roads is the vehicle actually on," which isn't WayGo's problem once a
+route is chosen. It becomes WayGo's problem only for **off-route detection accuracy** — see §3.1.
 
 **Decision: adopt a lightweight upgrade, decline full HMM.** A real HMM implementation (e.g.
 wiring in Valhalla's Meili matching service, or a `turf.js`-based multi-hypothesis tracker) is
 justified when snapping onto an *unknown, unconstrained* road network (e.g. general fleet
-tracking with no predetermined route). Ocar's driver always has a routing-provided polyline to
+tracking with no predetermined route). WayGo's driver always has a routing-provided polyline to
 snap to, so the ROI of full HMM is low. What *is* worth adding: basic GPS noise rejection before
 the existing projection (§3.1).
 
@@ -160,9 +160,9 @@ only the *residual* — the gap between the routing engine's estimate and what a
 trained on Uber's own historical trip data at global scale. It's the highest-QPS model at Uber
 specifically because it doesn't replace the routing engine, it corrects it.
 
-**Why this doesn't transfer to Ocar's current stage:** DeepETA needs a large volume of
+**Why this doesn't transfer to WayGo's current stage:** DeepETA needs a large volume of
 (predicted ETA, actual arrival time) pairs *per corridor/time-of-day bucket* to train a residual
-model that beats "just use Google's number." Ocar doesn't have that dataset yet, and won't until
+model that beats "just use Google's number." WayGo doesn't have that dataset yet, and won't until
 enough rides have actually completed on each corridor. Building an ML ETA-correction model today
 would be fitting noise, not signal.
 
@@ -176,7 +176,7 @@ train a correction model on instead of starting from zero.
 Industry convention (Mapbox/Google's own navigation UI patterns): a maneuver banner with primary
 instruction + distance-to-maneuver + (when relevant) a secondary/sub-maneuver preview of what
 comes right after; voice announcements fired at fixed distance bands before a turn; large,
-high-contrast text sized for a glance, not a read. Ocar's `ManeuverBanner.tsx` + `useVoiceGuidance.ts`
+high-contrast text sized for a glance, not a read. WayGo's `ManeuverBanner.tsx` + `useVoiceGuidance.ts`
 (shipped 2026-07-10, per the audit doc) already match this shape — banner + 300m/100m voice bands.
 **No gap here**; the one documented deviation (announcing the backend's raw instruction text
 instead of hand-built "in 300m, turn left" phrasing) is a deliberate, sound choice to avoid
@@ -186,11 +186,11 @@ unreviewed Hindi grammar, not a shortfall.
 
 Native offline-area downloads cut mobile data use during nav by up to ~94% and extend battery
 life 22-38%, because the device stops polling for tile updates. This is a genuinely large
-practical effect, but Ocar's corridors are 3 well-covered city routes, not the wilderness — tile
+practical effect, but WayGo's corridors are 3 well-covered city routes, not the wilderness — tile
 availability isn't the pain point offline maps solve, and Wake Lock (already shipped) plus keeping
 GPS at high-accuracy only during active-ride screens (already the policy per the audit doc §3
 item 9) covers the bulk of the battery risk. Full offline vector-tile caching is real infra
-(storage budgeting, eviction policy, pre-fetch-on-ride-accept) that solves a problem Ocar mostly
+(storage budgeting, eviction policy, pre-fetch-on-ride-accept) that solves a problem WayGo mostly
 doesn't have (NH16 dead zones are a *connectivity* gap the audit doc already flagged, not a
 battery one).
 
@@ -199,9 +199,9 @@ cite tile-loading failures in known coverage gaps (NH16 stretch), not preemptive
 
 ---
 
-## 2. Gap-fulfillment table — where Ocar stands today vs. each technique
+## 2. Gap-fulfillment table — where WayGo stands today vs. each technique
 
-| Capability | Industry best practice | Ocar today | Verdict |
+| Capability | Industry best practice | WayGo today | Verdict |
 |---|---|---|---|
 | Turn-by-turn maneuver banner + voice | Distance-banded announcements, primary/secondary maneuver | ✅ Shipped (`ManeuverBanner.tsx`, `useVoiceGuidance.ts`) | Done |
 | Heading-locked follow camera, dynamic zoom/pitch | `easeTo({bearing, pitch, zoom})`, tighter zoom near turns | ✅ Shipped (`RecenterMap.tsx`) | Done |
@@ -294,8 +294,8 @@ Don't self-host OSRM/Valhalla/GraphHopper. Don't build a crowdsourced traffic-in
 Don't implement full HMM map-matching or Kalman-filtered positioning. Don't build a DeepETA-style
 correction model. Don't build offline vector-tile caching. Every one of these is a legitimate,
 well-documented industry technique — and every one of them solves a scale or data-density problem
-Ocar doesn't have yet. Building them now would be infrastructure in search of a problem, at the
-direct cost of the actually-scoped Phase 1-4 work above. If Ocar's trip volume grows by an order
+WayGo doesn't have yet. Building them now would be infrastructure in search of a problem, at the
+direct cost of the actually-scoped Phase 1-4 work above. If WayGo's trip volume grows by an order
 of magnitude and any of these becomes genuinely load-bearing, that's a real, separate scoping
 conversation — not a default to reach for because "Uber does it."
 

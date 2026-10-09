@@ -13,7 +13,7 @@ const FitBoundsToPoints = lazy(() => import('@/components/map/FitBoundsToPoints'
 
 // Named palette for this screen's deliberately dark, high-contrast surface
 // (an "incoming call" moment — outdoor/bright-sunlight legibility, distinct
-// from the rest of the light Ocar surface). Centralized so the ~30 repeated
+// from the rest of the light WayGo surface). Centralized so the ~30 repeated
 // hex literals this card used are named once instead of copy-pasted.
 const C = {
   surface:      '#0F172A',

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html><head><meta charset="utf-8"><title>Ocar — Round-Trip Rate Card Guide</title>
+<html><head><meta charset="utf-8"><title>WayGo — Round-Trip Rate Card Guide</title>
 <style>
 @page { size: A4; margin: 18mm 16mm 16mm 16mm;
   @bottom-center { content: counter(page) " / " counter(pages);
@@ -52,7 +52,7 @@ li { margin-bottom: 1.6mm; }
 <h1>Round-Trip Rate Cards</h1>
 <p class="sub">Why every nearby outstation destination is currently priced the same,
 and how to correct it from the admin portal.</p>
-<p class="meta">Ocar &middot; Prepared for operations and pricing &middot; 31 August 2026<br>
+<p class="meta">WayGo &middot; Prepared for operations and pricing &middot; 31 August 2026<br>
 Formula verified against <span class="mono">api/src/lib/fare.ts</span> (round-trip branch);
 seeded values against <span class="mono">016_seed.sql</span> and
 <span class="mono">074_round_trip_package_billing.sql</span>.</p>
@@ -77,7 +77,7 @@ returns an identical fare</b>, because the whole round trip fits inside the pack
 
 <h2>1. Which ride type covers which journey</h2>
 
-<p>This document concerns <b>round trips only</b>. Ocar has three ride types and they serve
+<p>This document concerns <b>round trips only</b>. WayGo has three ride types and they serve
 different journeys, so it is worth being precise about the boundary before looking at fares.</p>
 
 <table class="nb">
@@ -196,7 +196,7 @@ surge. Savaari and other established operators price the same way.</p>
 <span class="lbl">The distinction that matters</span>
 <p>The 250&nbsp;km/day figure is genuine industry practice &mdash; <b>for the trips it was
 designed for</b>. It protects a driver on a long interstate run of 400&nbsp;km or more, often
-spanning several days. It was never intended for a 64&nbsp;km regional hop. Ocar inherited the
+spanning several days. It was never intended for a 64&nbsp;km regional hop. WayGo inherited the
 number without inheriting the context: <b>the model is right, the parameter is wrong for this
 market.</b> Odisha&rsquo;s coastal corridor puts most demand well inside a 125&nbsp;km radius,
 which is precisely the range the current setting flattens.</p>
@@ -205,7 +205,7 @@ which is precisely the range the current setting flattens.</p>
 <h3>Cross-check against the live market</h3>
 
 <p>Published fares for a Bhubaneswar&ndash;Puri same-day round trip by sedan sit in the
-<b>&#8377;1,700&ndash;&#8377;2,200</b> band. Ocar currently quotes &#8377;3,550 &mdash; roughly
+<b>&#8377;1,700&ndash;&#8377;2,200</b> band. WayGo currently quotes &#8377;3,550 &mdash; roughly
 60&ndash;100&nbsp;% above the market.</p>
 
 <table class="nb">
@@ -213,8 +213,8 @@ which is precisely the range the current setting flattens.</p>
 <tr><td>MakeMyTrip</td><td>Sedan</td><td class="num">&#8377;1,714</td></tr>
 <tr><td>CabBazar (same-day return, 10&ndash;12 h)</td><td>Sedan</td><td class="num">&#8377;2,180</td></tr>
 <tr><td>CabBazar (same-day return, 10&ndash;12 h)</td><td>SUV</td><td class="num">&#8377;3,021</td></tr>
-<tr><td><b>Ocar today</b></td><td>Sedan</td><td class="num same">&#8377;3,550</td></tr>
-<tr><td><b>Ocar after correction</b></td><td>Sedan</td><td class="num diff">&#8377;1,964</td></tr>
+<tr><td><b>WayGo today</b></td><td>Sedan</td><td class="num same">&#8377;3,550</td></tr>
+<tr><td><b>WayGo after correction</b></td><td>Sedan</td><td class="num diff">&#8377;1,964</td></tr>
 </table>
 
 <p>So the misconfiguration is not only collapsing price differences between destinations &mdash;
@@ -224,7 +224,7 @@ it is also pricing the platform out of its own market on its single busiest rout
 
 <p>The rule: <b>the package must be smaller than the shortest round trip you actually sell.</b>
 Only then does real distance drive the price. If the package is larger, every trip beneath it
-collapses to the same fare. Ocar&rsquo;s shortest outstation round trip is Puri at 128&nbsp;km,
+collapses to the same fare. WayGo&rsquo;s shortest outstation round trip is Puri at 128&nbsp;km,
 so the package must sit below 128.</p>
 
 <table class="nb">

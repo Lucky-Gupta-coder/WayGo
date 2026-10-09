@@ -1,5 +1,5 @@
 {
-  "name": "ocar-load-tests",
+  "name": "waygo-load-tests",
   "private": true,
   "version": "1.0.0",
   "dependencies": {

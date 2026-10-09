@@ -49,7 +49,6 @@ function RoundTripContent() {
   const destAddress = sp.get('destinationAddress') ?? null
   const distanceKm  = sp.get('distanceKm')  ? parseFloat(sp.get('distanceKm')!)  : null
   const durationMin = sp.get('durationMin') ? parseFloat(sp.get('durationMin')!)  : null
-  const polyline    = sp.get('polyline') ?? undefined
   const riderName   = sp.get('riderName') ?? undefined
   const riderPhone  = sp.get('riderPhone') ?? undefined
 
@@ -87,7 +86,6 @@ function RoundTripContent() {
     }
     if (distanceKm !== null)  params.set('distanceKm', String(distanceKm))
     if (durationMin !== null) params.set('durationMin', String(durationMin))
-    if (polyline) params.set('polyline', polyline)
     if (scheduledFor) params.set('scheduledFor', scheduledFor.toISOString())
     if (riderName)  params.set('riderName', riderName)
     if (riderPhone) params.set('riderPhone', riderPhone)
@@ -130,7 +128,6 @@ function RoundTripContent() {
       tripHours:          String(selectedHours),
     })
     if (originCityId !== undefined) params.set('originCityId', String(originCityId))
-    if (polyline) params.set('polyline', polyline)
     if (scheduledFor) params.set('scheduledFor', scheduledFor.toISOString())
     if (riderName)  params.set('riderName', riderName)
     if (riderPhone) params.set('riderPhone', riderPhone)

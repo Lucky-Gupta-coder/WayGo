@@ -1,4 +1,4 @@
-# Ocar — Pre-Campaign Load Test
+# WayGo — Pre-Campaign Load Test
 
 Implements checklist step 13 from `docs/architecture/2026-08-04-production-scale-readiness-report.md`:
 
@@ -56,8 +56,8 @@ Three scenarios run **concurrently** in one `k6 run main.js` — that overlap (b
 
 ```bash
 cd load-tests/k6
-BASE_URL=https://staging.ocar.example.com \
-WS_URL=wss://staging.ocar.example.com \
+BASE_URL=https://staging.waygo.example.com \
+WS_URL=wss://staging.waygo.example.com \
 CATEGORY_ID=<real id> CITY_ID=<real id> \
 k6 run --vus 1 --iterations 1 smoke.js
 ```
@@ -128,7 +128,7 @@ The report explicitly names what should strain first — **not app CPU**:
 - **Redis (pub/sub fan-out)** — ops/sec against the plan's cap, connected-clients count. This is what the `@socket.io/redis-adapter` fans every `driver:location` broadcast through across instances.
 - **Neon connection pool** — concurrent pooled connections across all ASG instances vs. the pool ceiling. This is why `pg_stat_statements` + the `-pooler` endpoint (§2.4) need to be on before the test, not after.
 - **`t3.medium` CPU credit balance** (`CPUCreditBalance` CloudWatch metric per instance) — the actual question behind "should this be `m5.large` instead." Watch it drain, don't assume from the estimate.
-- **cAdvisor per-container panel** (`ocar-overview.json`'s "Per-Container Resource Usage" row, per `CLAUDE.md`'s Pending Ops Actions) — needs its `terraform apply` + dashboard re-import done first if that's still outstanding.
+- **cAdvisor per-container panel** (`waygo-overview.json`'s "Per-Container Resource Usage" row, per `CLAUDE.md`'s Pending Ops Actions) — needs its `terraform apply` + dashboard re-import done first if that's still outstanding.
 - **ALB target group health + 5xx rate, p95 latency** — matches this script's own `http_req_duration` threshold (`p(95)<500ms`), which mirrors the ASG's own secondary scaling trigger.
 - **GPS ping -> broadcast latency** — the script's `gps_ping_latency_ms` metric only measures the client-side `emit()` call, not true end-to-end latency (Socket.io events are fire-and-forget, no ack). For real ping-to-broadcast latency, pull it from the OpenTelemetry trace in Tempo instead — that's what tracing was built for.
 
@@ -243,7 +243,7 @@ not an open bug anymore. See `verify/reconcile.js` below for confirming this fro
 
 ```bash
 cd load-tests
-BASE_URL=https://staging.ocar.example.com WS_URL=wss://staging.ocar.example.com CITY_ID=1 \
+BASE_URL=https://staging.waygo.example.com WS_URL=wss://staging.waygo.example.com CITY_ID=1 \
   k6 run k6/accept-race.js
 ```
 

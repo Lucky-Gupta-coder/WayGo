@@ -19,7 +19,7 @@ A production deploy of the API had silently stopped applying database migrations
 ## Timeline
 
 1. **Detection (reactive, not automated):** user observed live application error logs showing `relation "saved_places" does not exist` and `column "escalated_at" does not exist` on the scheduler. No monitoring/alerting flagged this — it was found by manually reading logs.
-2. **Root cause #1 identified:** `/ocar/prod/migration-database-url` (a hand-maintained SSM parameter, not Terraform-managed) still pointed at the project's original Neon database from before an earlier RDS cutover. Every deploy's migration step had been "succeeding" against that abandoned database while the live app queried RDS, which never received migrations `089_saved_places.sql`, `093_safety_escalation_columns.sql`, or anything after.
+2. **Root cause #1 identified:** `/waygo/prod/migration-database-url` (a hand-maintained SSM parameter, not Terraform-managed) still pointed at the project's original Neon database from before an earlier RDS cutover. Every deploy's migration step had been "succeeding" against that abandoned database while the live app queried RDS, which never received migrations `089_saved_places.sql`, `093_safety_escalation_columns.sql`, or anything after.
 3. While preparing to fix #1, a **second, independent bug** surfaced: `api-env`'s own `DATABASE_URL` password no longer matched RDS's actual current password. The RDS instance uses `manage_master_user_password = true` (AWS/Secrets-Manager-owned, auto-rotating), and the password had rotated at least once since the value was last hand-copied into SSM — a known, documented tradeoff from when the RDS cutover happened ("pull once after apply, hand-maintain"), which nobody had re-pulled since.
 4. This second bug caused a **total outage**: every DB-backed request began failing with `password authentication failed for user "ocar_admin"`.
 5. **Live credentials were pasted into the assistant chat** while diagnosing (both the Neon and RDS connection strings, including passwords). Flagged as compromised-by-exposure; rotation was already necessary for the incident and this reinforced it.
@@ -42,7 +42,7 @@ A production deploy of the API had silently stopped applying database migrations
 
 Three independent, compounding issues, not one:
 
-1. **No automated sync between a hand-maintained SSM parameter and the actual database it names.** `/ocar/prod/migration-database-url` was seeded once at RDS cutover time and never touched again — nothing detects or alerts when it silently diverges from reality.
+1. **No automated sync between a hand-maintained SSM parameter and the actual database it names.** `/waygo/prod/migration-database-url` was seeded once at RDS cutover time and never touched again — nothing detects or alerts when it silently diverges from reality.
 2. **No automated sync between AWS's auto-rotated RDS-managed master password and the SSM-stored copy the app actually uses.** `manage_master_user_password = true` provides no benefit if nothing propagates the rotated value to where the app reads it — this is worse than a fixed password, because it creates the appearance of security rotation while actually just being a ticking time bomb.
 3. **Incomplete understanding of RDS Postgres IAM auth semantics before granting it to a shared/master role.** Granting `rds_iam` to `ocar_admin` was assumed to be additive (a new auth option alongside the existing password). It is not — it changes `pg_hba.conf` routing for that role, removing password auth entirely for connections that match the IAM rule.
 
@@ -97,7 +97,7 @@ Six real, independent bugs, each caught by an actual deploy failure and root-cau
 2. **IMDS hop-limit defaulting to 1** — the launch template's `metadata_options` never set `http_put_response_hop_limit`, which silently blocks any Docker container (bridge network) from reaching the instance's IAM role at all. Would have broken this fix *and* the original IAM-auth attempt regardless of how correct the application code was. Also caught in review.
 3. **GitHub Actions deploy role missing `rds:DescribeDBInstances`** — a separate IAM role from the EC2 instance role; granting the instance role wasn't sufficient. Caught via a real `AccessDenied` deploy failure.
 4. **`set +H` assumed the wrong remote shell** — AWS-RunShellScript executes via `/bin/sh` (dash), not bash; dash has no `-H` option at all and errored immediately (`Illegal option -H`) before ever reaching the migration command. The original theory (bash history expansion mangling the secret ARN's `rds!`-prefix) was itself wrong — dash never does history expansion, so this was never the actual cause. Removed.
-5. **Stale locally-cached `:latest` image** — the actual root cause of bug #4's symptom. This EC2 instance had been running `ocar-api:latest` continuously and already had an old image cached under that tag; `docker run` does not re-pull an image that already exists locally under the same tag. The migration container was silently running pre-fix code every single time, which is why `DB_SECRET_ARN` reached the container's shell correctly (confirmed via a container-side echo) but `migrate.js` still hit the *old* code's error message. Fixed with `--pull always`. Brand-new instances at boot are unaffected (nothing cached yet).
+5. **Stale locally-cached `:latest` image** — the actual root cause of bug #4's symptom. This EC2 instance had been running `waygo-api:latest` continuously and already had an old image cached under that tag; `docker run` does not re-pull an image that already exists locally under the same tag. The migration container was silently running pre-fix code every single time, which is why `DB_SECRET_ARN` reached the container's shell correctly (confirmed via a container-side echo) but `migrate.js` still hit the *old* code's error message. Fixed with `--pull always`. Brand-new instances at boot are unaffected (nothing cached yet).
 6. **`rejectUnauthorized: true` with no CA configured** — Node's default trust store doesn't include Amazon's RDS CA, so every connection failed with `SELF_SIGNED_CERT_IN_CHAIN`. The first instinct (`rejectUnauthorized: false`) was flagged before being committed — it would have shipped a *weaker* posture than intended without being asked to. Researched AWS's actual documented practice instead: vendored AWS's official global RDS CA bundle and verified the chain properly (`sslmode=verify-full` equivalent), which is both the AWS-recommended approach and what real production deployments use — network isolation (a security group) and certificate verification are complementary controls, not substitutes for each other.
 
 ### Final verified state
@@ -165,15 +165,15 @@ Both new rules were added to the existing `grafana_rule_group.static_thresholds`
 
 ```bash
 # Diagnose SSM parameter drift
-aws ssm get-parameter --name /ocar/prod/migration-database-url --with-decryption --query Parameter.Value --output text
-aws ssm get-parameter --name /ocar/prod/api-env --with-decryption --query Parameter.Value --output text
+aws ssm get-parameter --name /waygo/prod/migration-database-url --with-decryption --query Parameter.Value --output text
+aws ssm get-parameter --name /waygo/prod/api-env --with-decryption --query Parameter.Value --output text
 
 # Force an immediate (not maintenance-window-deferred) RDS modification
-aws rds modify-db-instance --db-instance-identifier ocar-prod-db --enable-iam-database-authentication --apply-immediately
-aws rds modify-db-instance --db-instance-identifier ocar-prod-db --no-enable-iam-database-authentication --apply-immediately
+aws rds modify-db-instance --db-instance-identifier waygo-prod-db --enable-iam-database-authentication --apply-immediately
+aws rds modify-db-instance --db-instance-identifier waygo-prod-db --no-enable-iam-database-authentication --apply-immediately
 
 # Get RDS's actual current (Secrets-Manager-managed) master password
-aws rds describe-db-instances --db-instance-identifier ocar-prod-db --query "DBInstances[0].MasterUserSecret.SecretArn"
+aws rds describe-db-instances --db-instance-identifier waygo-prod-db --query "DBInstances[0].MasterUserSecret.SecretArn"
 aws secretsmanager get-secret-value --secret-id <arn> --query SecretString --output text
 
 # Run one-off SQL against RDS via SSM (RDS isn't publicly reachable)
@@ -183,6 +183,6 @@ aws ssm get-command-invocation --command-id <id> --instance-id <id> \
   --query "{Status:Status,Out:StandardOutputContent,Err:StandardErrorContent}"
 
 # Check real instance-refresh state vs. what the deploy workflow's own polling loop gave up on
-aws autoscaling describe-instance-refreshes --auto-scaling-group-name ocar-prod-asg --max-records 1
+aws autoscaling describe-instance-refreshes --auto-scaling-group-name waygo-prod-asg --max-records 1
 aws elbv2 describe-target-health --target-group-arn <arn>
 ```

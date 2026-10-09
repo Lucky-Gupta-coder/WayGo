@@ -403,7 +403,7 @@ export async function createBooking(userId: bigint, data: BookingRequest) {
   }
 
   if (
-    (data.rideType === 'one_way' || data.rideType === 'round_trip') &&
+    data.rideType === 'round_trip' &&
     data.destinationLat !== undefined &&
     data.destinationLng !== undefined
   ) {
@@ -411,15 +411,10 @@ export async function createBooking(userId: bigint, data: BookingRequest) {
       data.originLat, data.originLng, data.destinationLat, data.destinationLng
     )
     if (classification.scope === 'in_city') {
-      const tripDistanceMetres = distanceMetres(
-        data.originLat, data.originLng, data.destinationLat, data.destinationLng
+      throw Object.assign(
+        new Error(`This trip stays within ${classification.cityName} — book an hourly rental package instead`),
+        { httpStatus: 422 }
       )
-      if (tripDistanceMetres < IN_CITY_MAX_TRIP_DISTANCE_METRES) {
-        throw Object.assign(
-          new Error(`This trip stays within ${classification.cityName} — book an hourly rental package instead`),
-          { httpStatus: 422 }
-        )
-      }
     }
   }
 
@@ -557,6 +552,15 @@ export async function createBooking(userId: bigint, data: BookingRequest) {
     rideInput.status = 'scheduled'
   }
   const ride = await repo.createRide(rideInput)
+  console.log('[DEBUG RIDE FLOW] CREATE', {
+    rideId: ride.id.toString(),
+    originLat: data.originLat,
+    originLng: data.originLng,
+    destinationLat: data.destinationLat,
+    destinationLng: data.destinationLng,
+    rideType: data.rideType,
+    categoryId: data.categoryId,
+  })
 
   if (data.stops && data.stops.length > 0) {
     const chargePerStop = data.rideType === 'round_trip' ? await getStopCharge(data.categoryId) : 0
@@ -672,6 +676,11 @@ export async function createBooking(userId: bigint, data: BookingRequest) {
       { delay: 50_000, attempts: 1, removeOnComplete: true }
     ),
   ])
+  console.log('[DEBUG RIDE FLOW] DISPATCH', {
+    rideId: ride.id.toString(),
+    triggered: true,
+    queue: QUEUE_NAMES.DISPATCH,
+  })
 
   return {
     rideId:          ride.id.toString(),

@@ -49,7 +49,7 @@ Research first, then build collaboratively — not solo.
 
 ## The system this infra is for
 
-Cab booking platform ("Ocar") for Odisha (Bhubaneswar/Cuttack/Puri). Turborepo/pnpm
+Cab booking platform ("WayGo") for Odisha (Bhubaneswar/Cuttack/Puri). Turborepo/pnpm
 monorepo: `api/` (Express + TypeScript backend), `apps/user`, `apps/driver`,
 `apps/admin` (frontends, deployed separately via Vercel — not in scope here). Full
 system details are in `CLAUDE.md` at the repo root if you need them.
@@ -71,7 +71,7 @@ system details are in `CLAUDE.md` at the repo root if you need them.
 - Real-time: Socket.io. **Already has the Redis adapter wired in** (`@socket.io/redis-adapter`
   in `api/src/websocket/socket.server.ts`) specifically so events broadcast correctly
   across multiple API instances — this prerequisite for horizontal scaling is already done.
-- Domain: `ocar-api.clienttesting.in`, DNS managed externally (not necessarily Route 53
+- Domain: `waygo-api.clienttesting.in`, DNS managed externally (not necessarily Route 53
   — check before assuming).
 - Region: **ap-south-1** (Mumbai) — matches the existing S3 bucket and Neon region.
 
@@ -145,7 +145,7 @@ Neon Postgres (managed, external) + Redis Cloud (managed, external)
 2. **VPC + 2 public subnets + Internet Gateway + route table.** No NAT gateway.
 3. **Security groups.** ALB SG (80/443 from `0.0.0.0/0`), EC2 SG (only from the ALB
    SG, plus optionally SSH from one specific IP for debugging).
-4. **ACM certificate** for `ocar-api.clienttesting.in`, DNS-validated — output the
+4. **ACM certificate** for `waygo-api.clienttesting.in`, DNS-validated — output the
    validation CNAME record for manual DNS setup (confirm first whether DNS is on
    Route 53 or an external registrar; that changes whether validation can be automated).
 5. **IAM role + instance profile** — permission for EC2 instances to read the SSM

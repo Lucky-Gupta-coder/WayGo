@@ -54,7 +54,7 @@ const PHONES = {
   replayDriver: '+919700000070',
 } as const
 
-const SOS_ADMIN_EMAIL = 'm09-safety-admin@ocar.app'
+const SOS_ADMIN_EMAIL = 'm09-safety-admin@waygo.app'
 const SOS_ADMIN_PASSWORD = 'Admin@1234'
 
 let categoryId: number
@@ -67,7 +67,7 @@ beforeAll(async () => {
 
   // Seed one admin for TC-M09-005's acknowledge assertion — mirrors
   // m02.test.ts's proven beforeAll pattern. A different email than
-  // admin@ocar.app avoids any collision if m02 and m09 ever run concurrently.
+  // admin@waygo.app avoids any collision if m02 and m09 ever run concurrently.
   const hash = await hashPassword(SOS_ADMIN_PASSWORD)
   await pool.query(`
     INSERT INTO admins (email, password_hash, role)

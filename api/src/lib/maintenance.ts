@@ -1,6 +1,6 @@
 import { client, withTimeout } from '@/db/redis'
 
-const MAINTENANCE_KEY = 'ocar:maintenance'
+const MAINTENANCE_KEY = 'waygo:maintenance'
 
 export interface MaintenanceStatus {
   enabled: boolean

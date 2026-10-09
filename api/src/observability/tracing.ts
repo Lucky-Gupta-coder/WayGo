@@ -16,7 +16,7 @@ import { logger } from '@/lib/logger'
 export const pgInstrumentationConfig = { enhancedDatabaseReporting: false }
 
 const sdk = new NodeSDK({
-  resource: resourceFromAttributes({ [ATTR_SERVICE_NAME]: 'ocar-api' }),
+  resource: resourceFromAttributes({ [ATTR_SERVICE_NAME]: 'waygo-api' }),
   traceExporter: new OTLPTraceExporter({
     url: `${process.env['OTEL_EXPORTER_OTLP_ENDPOINT'] ?? 'http://alloy:4318'}/v1/traces`,
   }),

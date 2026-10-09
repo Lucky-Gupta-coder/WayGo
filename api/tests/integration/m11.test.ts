@@ -8,8 +8,8 @@ import { loginUser, cleanupRideAndDriverData } from '../helpers/fixtures/rides.f
 
 const app = createApp()
 
-const SUPER_ADMIN_EMAIL = 'm11-super-admin@ocar.app'
-const OPS_ADMIN_EMAIL = 'm11-ops-admin@ocar.app'
+const SUPER_ADMIN_EMAIL = 'm11-super-admin@waygo.app'
+const OPS_ADMIN_EMAIL = 'm11-ops-admin@waygo.app'
 const ADMIN_PASSWORD = 'Admin@1234'
 
 const PHONES = {
@@ -155,7 +155,7 @@ describe('M11 — Admin Panel', () => {
       }
 
       // support_admin/finance_admin cannot create rate cards — outside requireAdmin's list.
-      const FINANCE_ADMIN_EMAIL = 'm11-finance-admin@ocar.app'
+      const FINANCE_ADMIN_EMAIL = 'm11-finance-admin@waygo.app'
       await seedAdmin(pool, FINANCE_ADMIN_EMAIL, 'finance_admin', ADMIN_PASSWORD)
       try {
         const financeLogin = await loginAdmin(app, FINANCE_ADMIN_EMAIL, ADMIN_PASSWORD)

@@ -114,7 +114,7 @@ oversized two-pill card, and the popup is a dated calendar-grid + chevron-steppe
 - Rapido surfaces scheduling as a small entry + a home-screen reminder chip after booking
   ([Rapido scheduling concept study](https://medium.com/@corkidragon/scheduling-feature-for-rapido-1e1ed0b82313)).
 
-Against that, Ocar's trigger spends ~90px of full-width vertical space on a boxed card with its own
+Against that, WayGo's trigger spends ~90px of full-width vertical space on a boxed card with its own
 section label to present a binary whose answer is "now" ~90%+ of the time. On `/search` it sits
 directly under a row of 36px action pills, so the scale mismatch is visible in one glance — the
 schedule card has **more visual weight than the destination confirmation actions above it**.

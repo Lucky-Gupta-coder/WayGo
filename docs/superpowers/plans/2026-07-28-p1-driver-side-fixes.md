@@ -18,7 +18,7 @@
 
 **Tech Stack:** Vite + React 19 + Zustand + Framer Motion (apps/driver). No backend changes in this plan — everything needed already exists server-side.
 
-**Design system:** Ocar driver app — Inter, primary `#4F46E5`, product register (see `PRODUCT.md`/`DESIGN.md` via the `impeccable` skill). Product UI rules apply: no decorative motion, standard component vocabulary, 150–250ms transitions, WCAG AA (44×44 touch targets, 4.5:1 text contrast), color never the sole state indicator.
+**Design system:** WayGo driver app — Inter, primary `#4F46E5`, product register (see `PRODUCT.md`/`DESIGN.md` via the `impeccable` skill). Product UI rules apply: no decorative motion, standard component vocabulary, 150–250ms transitions, WCAG AA (44×44 touch targets, 4.5:1 text contrast), color never the sole state indicator.
 
 ---
 

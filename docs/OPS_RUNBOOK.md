@@ -20,10 +20,10 @@ for the full design/implementation history) — merge to `main` triggers
 migrations against the shared RDS instance, then cuts over to the idle
 color instead of doing an in-place rolling refresh:
 
-1. Reads `/ocar/prod/active-color` (SSM) to find which color is currently
+1. Reads `/waygo/prod/active-color` (SSM) to find which color is currently
    live, computes the other one as idle.
 2. Writes the new image tag to the idle color's own SSM parameter
-   (`/ocar/prod/{blue,green}/image-tag`) — the live color's parameter is
+   (`/waygo/prod/{blue,green}/image-tag`) — the live color's parameter is
    untouched.
 3. Scales the idle color's ASG up, health-checks it, then smoke-tests it
    directly through the ALB via a preview header
@@ -38,16 +38,16 @@ color instead of doing an in-place rolling refresh:
 Both colors' ASGs exist in Terraform at all times with `min_size` /
 `desired_capacity` runtime-controlled by the pipeline, not Terraform (see
 `asg.tf`'s `lifecycle.ignore_changes`). **Blue kept its exact
-pre-blue/green resource names** (`ocar-prod-asg`, `ocar-prod-api-tg`, no
+pre-blue/green resource names** (`waygo-prod-asg`, `waygo-prod-api-tg`, no
 color suffix) — renaming a live ASG/target group forces AWS to
 destroy-and-recreate it, so blue never got the new `-blue` suffix; green
-uses the clean `ocar-prod-asg-green` / `ocar-prod-api-tg-green` naming.
+uses the clean `waygo-prod-asg-green` / `waygo-prod-api-tg-green` naming.
 This asymmetry is permanent and intentional, not a bug — see
 `asg.tf`/`alb.tf`'s comments on it.
 
 Find which color is live right now:
 ```bash
-aws ssm get-parameter --name /ocar/prod/active-color --query 'Parameter.Value' --output text
+aws ssm get-parameter --name /waygo/prod/active-color --query 'Parameter.Value' --output text
 ```
 
 **No manual step needed for a normal deploy.** Only touch this if the
@@ -58,9 +58,9 @@ you need to go back further than the immediately-preceding deploy). This
 mirrors exactly what `deploy.yml`'s own "Flip the listener" /
 "Resume scaling" steps do — copy-pasteable as-is:
 ```bash
-ACTIVE=$(aws ssm get-parameter --name /ocar/prod/active-color --query 'Parameter.Value' --output text)
+ACTIVE=$(aws ssm get-parameter --name /waygo/prod/active-color --query 'Parameter.Value' --output text)
 if [ "$ACTIVE" = "blue" ]; then IDLE="green"; else IDLE="blue"; fi
-if [ "$IDLE" = "blue" ]; then IDLE_ASG="ocar-prod-asg"; IDLE_TG="ocar-prod-api-tg"; else IDLE_ASG="ocar-prod-asg-green"; IDLE_TG="ocar-prod-api-tg-green"; fi
+if [ "$IDLE" = "blue" ]; then IDLE_ASG="waygo-prod-asg"; IDLE_TG="waygo-prod-api-tg"; else IDLE_ASG="waygo-prod-asg-green"; IDLE_TG="waygo-prod-api-tg-green"; fi
 echo "Rolling back: $ACTIVE (currently live) -> $IDLE"
 
 # Bring the target color back up if it had already been scaled to 0 (harmless no-op if it's still at 2)
@@ -72,15 +72,15 @@ aws elbv2 describe-target-health --target-group-arn "$IDLE_TG_ARN"
 
 # Flip the listener
 LISTENER_ARN=$(aws elbv2 describe-listeners --load-balancer-arn \
-  "$(aws elbv2 describe-load-balancers --names ocar-prod-alb --query 'LoadBalancers[0].LoadBalancerArn' --output text)" \
+  "$(aws elbv2 describe-load-balancers --names waygo-prod-alb --query 'LoadBalancers[0].LoadBalancerArn' --output text)" \
   --query "Listeners[?Port==\`443\`].ListenerArn | [0]" --output text)
 aws elbv2 modify-listener --listener-arn "$LISTENER_ARN" --default-actions "Type=forward,TargetGroupArn=$IDLE_TG_ARN"
-aws ssm put-parameter --name /ocar/prod/active-color --type String --value "$IDLE" --overwrite
+aws ssm put-parameter --name /waygo/prod/active-color --type String --value "$IDLE" --overwrite
 
 # Restore the redundancy floor on the color that's now live, drop it on the one going idle
 aws autoscaling update-auto-scaling-group --auto-scaling-group-name "$IDLE_ASG" --min-size 2
 aws autoscaling resume-processes --auto-scaling-group-name "$IDLE_ASG" --scaling-processes AlarmNotification
-OLD_ASG=$([ "$ACTIVE" = "blue" ] && echo "ocar-prod-asg" || echo "ocar-prod-asg-green")
+OLD_ASG=$([ "$ACTIVE" = "blue" ] && echo "waygo-prod-asg" || echo "waygo-prod-asg-green")
 aws autoscaling update-auto-scaling-group --auto-scaling-group-name "$OLD_ASG" --min-size 0
 aws autoscaling suspend-processes --auto-scaling-group-name "$OLD_ASG" --scaling-processes AlarmNotification
 ```
@@ -111,10 +111,10 @@ because they're exactly what you'll see again if they recur:
   pre-existing request-count-tracking policy is then free to scale the
   live color down with nothing stopping it. Check
   `aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names
-  ocar-prod-asg ocar-prod-asg-green --query 'AutoScalingGroups[].{Name:AutoScalingGroupName,Min:MinSize,Desired:DesiredCapacity}'`
-  — whichever is currently active per `/ocar/prod/active-color` should
+  waygo-prod-asg waygo-prod-asg-green --query 'AutoScalingGroups[].{Name:AutoScalingGroupName,Min:MinSize,Desired:DesiredCapacity}'`
+  — whichever is currently active per `/waygo/prod/active-color` should
   always show `Min: 2`.
-- **Terraform wants to destroy/recreate `ocar-prod-asg` (or the target
+- **Terraform wants to destroy/recreate `waygo-prod-asg` (or the target
   group / launch template / scaling policy) on an unrelated `plan`.**
   Their `name`/`name_prefix` is immutable — if that diff ever appears,
   something changed blue's naming away from its legacy unsuffixed form.
@@ -187,33 +187,33 @@ aren't cheaply reversible the way an app deploy is).
 
 ## Check health / logs / metrics
 
-- `GET https://ocar-api.clienttesting.in/health` — same check the ALB target
+- `GET https://waygo-api.clienttesting.in/health` — same check the ALB target
   group and deploy pipeline use.
 - Grafana Cloud (Loki/Mimir/Tempo, shipped by the Alloy agent on each
   instance) — logs, `pg_pool_connections`, `http_request_duration_seconds`,
   `bullmq_queue_job_counts`, per-container CPU/memory (cAdvisor row on the
-  `ocar-overview` dashboard), BullMQ queue depth.
-- AWS Console → EC2 → Auto Scaling Groups → `ocar-prod-asg` (blue) or
-  `ocar-prod-asg-green` (green) for instance count/health, or
+  `waygo-overview` dashboard), BullMQ queue depth.
+- AWS Console → EC2 → Auto Scaling Groups → `waygo-prod-asg` (blue) or
+  `waygo-prod-asg-green` (green) for instance count/health, or
   `aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names
-  ocar-prod-asg ocar-prod-asg-green`. Check `/ocar/prod/active-color`
+  waygo-prod-asg waygo-prod-asg-green`. Check `/waygo/prod/active-color`
   (SSM) first if you only care about the one actually serving traffic.
 - The `Color` tag (`blue`/`green`) on every ASG/instance/target-group lets
   Grafana dashboards split metrics by color during a deploy.
 
 ## Rotate a secret (DB URL, JWT secret, Razorpay keys, etc.)
 
-All of it lives in one SSM `SecureString` parameter, `/ocar/prod/api-env` —
+All of it lives in one SSM `SecureString` parameter, `/waygo/prod/api-env` —
 there's no Terraform resource for it (`iam.tf` only grants read access, it's
 never created by `apply`). To change one value you must pull the whole
 blob, edit it, and push the whole thing back (this is the exact ergonomic
 pain flagged in `CLAUDE.md`'s "Pending Ops Actions" as a candidate for a
 proper secrets manager later):
 ```bash
-aws ssm get-parameter --name /ocar/prod/api-env --with-decryption \
+aws ssm get-parameter --name /waygo/prod/api-env --with-decryption \
   --query 'Parameter.Value' --output text > api-env.txt
 # edit api-env.txt by hand
-aws ssm put-parameter --name /ocar/prod/api-env --type SecureString \
+aws ssm put-parameter --name /waygo/prod/api-env --type SecureString \
   --value "$(cat api-env.txt)" --overwrite
 rm api-env.txt   # don't leave decrypted secrets on disk
 ```
@@ -221,8 +221,8 @@ Then roll whichever color currently has running instances so they pick it
 up (they only read SSM at boot) — normally just the active one, since the
 idle color sits at 0 instances between deploys:
 ```bash
-ACTIVE=$(aws ssm get-parameter --name /ocar/prod/active-color --query 'Parameter.Value' --output text)
-ACTIVE_ASG=$([ "$ACTIVE" = "blue" ] && echo "ocar-prod-asg" || echo "ocar-prod-asg-green")
+ACTIVE=$(aws ssm get-parameter --name /waygo/prod/active-color --query 'Parameter.Value' --output text)
+ACTIVE_ASG=$([ "$ACTIVE" = "blue" ] && echo "waygo-prod-asg" || echo "waygo-prod-asg-green")
 aws autoscaling start-instance-refresh \
   --auto-scaling-group-name "$ACTIVE_ASG" \
   --preferences '{"MinHealthyPercentage":100,"MaxHealthyPercentage":100}'
@@ -233,13 +233,13 @@ aws autoscaling start-instance-refresh \
 `infra/terraform/observability/` (alert rules, SLOs, synthetic monitoring —
 one account-wide Grafana Cloud stack, applied locally, not from CI) reads
 every credential/config value it needs from SSM under
-`/ocar/observability/*` — never from a local `.tfvars` file or `TF_VAR_*`
+`/waygo/observability/*` — never from a local `.tfvars` file or `TF_VAR_*`
 env vars (a laptop-only tfvars file for this module got lost once already,
 2026-08-19, which is exactly the single point of failure this avoids).
 
 To change one (e.g. rotating the Grafana Service Account token):
 ```bash
-aws ssm put-parameter --name /ocar/observability/grafana-auth \
+aws ssm put-parameter --name /waygo/observability/grafana-auth \
   --type SecureString --value "<new-value>" --overwrite
 ```
 Same pattern for the other 8 parameters (`grafana-url`, `slack-webhook-url`,
@@ -247,7 +247,7 @@ Same pattern for the other 8 parameters (`grafana-url`, `slack-webhook-url`,
 comma-separated numbers, e.g. `"39,44"`, `sm-access-token`, `sm-url`,
 `usage-insights-datasource-uid`) — use `--type String` for the non-secret
 ones. No instance refresh needed (Terraform reads SSM live at `plan`/`apply`
-time, unlike the boot-time-only params in `/ocar/prod/*`). Then:
+time, unlike the boot-time-only params in `/waygo/prod/*`). Then:
 ```bash
 cd infra/terraform/observability
 terraform plan   # no -var/-var-file needed, ever
@@ -264,7 +264,7 @@ or `destroy`), or locally: `pnpm infra:staging:init/plan/apply/destroy`.
 continuously and costs the same per-instance rate as prod.
 
 `terraform apply` only boots the ASGs against whatever image tag is already
-sitting in `/ocar/staging/{blue,green}/image-tag` — it does not deploy code.
+sitting in `/waygo/staging/{blue,green}/image-tag` — it does not deploy code.
 To get a real app version onto staging, run the `Deploy` workflow manually
 (`workflow_dispatch`, `environment: staging`) — it runs the same blue/green
 cutover (build, migrate, scale idle color, smoke-test, flip, bake) as prod.

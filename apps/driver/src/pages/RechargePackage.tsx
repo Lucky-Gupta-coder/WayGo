@@ -111,7 +111,7 @@ export default function RechargePackage() {
         order_id: res.data.orderId,
         amount: (res.data.amount ?? 0) * 100,
         currency: 'INR',
-        name: 'Ocar',
+        name: 'WayGo',
         description: `Package: ${selectedTier.label}`,
         // Crediting happens server-side off the Razorpay webhook, not here —
         // there's no /packages/purchase/verify endpoint. Refetch after a

@@ -13,15 +13,15 @@ the other is either scaled to zero (steady state) or warming up / draining (mid-
 
 ```mermaid
 flowchart TB
-    Internet((Internet)) --> ALB[Application Load Balancer<br/>ocar-prod-alb]
+    Internet((Internet)) --> ALB[Application Load Balancer<br/>waygo-prod-alb]
 
     ALB -->|listener :443<br/>default_action -&gt; active color| Listener{{HTTPS Listener}}
 
-    Listener -->|forwards to| TGBlue[Target Group: blue<br/>ocar-prod-api-tg]
-    Listener -.->|idle, preview-header only| TGGreen[Target Group: green<br/>ocar-prod-api-tg-green]
+    Listener -->|forwards to| TGBlue[Target Group: blue<br/>waygo-prod-api-tg]
+    Listener -.->|idle, preview-header only| TGGreen[Target Group: green<br/>waygo-prod-api-tg-green]
 
-    TGBlue --> ASGBlue[ASG: blue<br/>ocar-prod-asg<br/>min=2 desired=2]
-    TGGreen -.-> ASGGreen[ASG: green<br/>ocar-prod-asg-green<br/>min=0 desired=0]
+    TGBlue --> ASGBlue[ASG: blue<br/>waygo-prod-asg<br/>min=2 desired=2]
+    TGGreen -.-> ASGGreen[ASG: green<br/>waygo-prod-asg-green<br/>min=0 desired=0]
 
     ASGBlue --> EC2B1[EC2] & EC2B2[EC2]
     ASGGreen -.-> EC2G1[EC2 idle]
@@ -46,7 +46,7 @@ the moment it passes its own health check, with no independent gate.
 group/launch template from before blue/green existed. AWS does not allow renaming these
 resource types (`name`/`name_prefix` is immutable — any change forces destroy-then-recreate of
 a live, traffic-serving resource). So blue keeps its original unsuffixed name
-(`ocar-prod-asg`, `ocar-prod-api-tg`) forever; green uses the clean `-green` suffix. This is
+(`waygo-prod-asg`, `waygo-prod-api-tg`) forever; green uses the clean `-green` suffix. This is
 baked into `infra/terraform/asg.tf`, `alb.tf`, `launch-template.tf`, and mirrored by
 `deploy.yml`'s `asg_name()`/`tg_name()` shell functions. It's cosmetic, not a hazard.
 
@@ -185,7 +185,7 @@ permanent invariant, not a one-off patch.
 ## 4. Known limitations (stated plainly, not glossed over)
 
 - **No staging deploy path.** `deploy.yml` is hardcoded to `ENVIRONMENT=prod` /
-  `ALB_NAME=ocar-prod-alb` / `/ocar/prod/active-color`, triggered only by `workflow_run` off
+  `ALB_NAME=waygo-prod-alb` / `/waygo/prod/active-color`, triggered only by `workflow_run` off
   pushes to `main`. There is currently no way to run this exact workflow against staging.
 - **Socket.io reconnect behavior under a real flip has not been observed** with a live client
   connected during cutover.

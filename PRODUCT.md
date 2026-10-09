@@ -16,7 +16,7 @@ Three distinct user groups across three apps:
 
 ## Product Purpose
 
-Ocar is an intercity cab booking platform built specifically for Odisha, India, connecting passengers across Bhubaneswar, Cuttack, and Puri. It exists because the region deserves a reliable, modern ride-hailing experience that feels made for it, not imported. Success looks like rides completed on time, drivers earning consistently, and ops running smoothly without manual overhead.
+WayGo is an intercity cab booking platform built specifically for Odisha, India, connecting passengers across Bhubaneswar, Cuttack, and Puri. It exists because the region deserves a reliable, modern ride-hailing experience that feels made for it, not imported. Success looks like rides completed on time, drivers earning consistently, and ops running smoothly without manual overhead.
 
 ## Brand Personality
 

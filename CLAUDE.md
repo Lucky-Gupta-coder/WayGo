@@ -1,4 +1,4 @@
-# Ocar — Cab Booking Platform
+# WayGo — Cab Booking Platform
 
 Intercity cab booking platform for Odisha (Bhubaneswar ↔ Cuttack ↔ Puri).
 Turborepo + pnpm workspaces monorepo. Build is module-by-module (M01–M12).
@@ -42,7 +42,7 @@ cab-booking-platform/
 
 ```
 Native PG18 on :5432  (don't use this)
-Docker Postgres       container: ocar_postgres, port: 5434, db: ocar
+Docker Postgres       container: ocar_postgres, port: 5434, db: waygo
 DATABASE_URL=postgresql://postgres:postgres@localhost:5434/ocar
 ```
 
@@ -54,7 +54,7 @@ cd api && pnpm migrate --fresh  # drops everything and reruns all (dev only)
 
 **Connect directly:**
 ```
-docker exec ocar_postgres psql -U postgres -d ocar
+docker exec ocar_postgres psql -U postgres -d waygo
 ```
 
 ---
@@ -427,8 +427,8 @@ routed to it yet → flips the ALB listener's default target group to it (the on
 moment) → bakes 10 minutes watching `HTTPCode_Target_5XX_Count` → scales the old color down once
 the bake is clean, or flips the listener back instantly if it isn't. Rollback (whichever stage
 triggers it) does NOT revert migrations (forward-only) — a bad migration must be fixed forward, not
-rolled back. `/ocar/prod/active-color` (SSM) is the source of truth for which color is currently
-live; blue kept its pre-blue/green resource names (`ocar-prod-asg`, `ocar-prod-api-tg`, no color
+rolled back. `/waygo/prod/active-color` (SSM) is the source of truth for which color is currently
+live; blue kept its pre-blue/green resource names (`waygo-prod-asg`, `waygo-prod-api-tg`, no color
 suffix) since renaming a live ASG/target group forces a destroy/recreate — see `asg.tf`'s comment.
 
 The `deploy` job's YAML references `environment: production`, but no GitHub Environment protection
@@ -476,7 +476,7 @@ plan` (no `-var-file`/`-var="environment=..."` needed, it doesn't take one).
 
 ## Pending Ops Actions
 
-- **cAdvisor is confirmed live on the fleet** (verified directly via `docker ps` on a running instance during the 2026-08-30 blue/green rollout — `ocar_cadvisor` up and healthy, scraped fine by Alloy). `ocar-overview.json`'s "Per-Container Resource Usage" panels are confirmed present in the live dashboard (Terraform-managed since 2026-09-08, see `infra/grafana/dashboards/README.md` — this class of "was it actually re-imported" uncertainty no longer applies). Once real/load-tested traffic exists, use that row's data to size `api`'s `mem_limit`/`cpus` (currently 2g/512m/1.5, a starting safety-net guess) from observed p95/p99 usage.
+- **cAdvisor is confirmed live on the fleet** (verified directly via `docker ps` on a running instance during the 2026-08-30 blue/green rollout — `ocar_cadvisor` up and healthy, scraped fine by Alloy). `waygo-overview.json`'s "Per-Container Resource Usage" panels are confirmed present in the live dashboard (Terraform-managed since 2026-09-08, see `infra/grafana/dashboards/README.md` — this class of "was it actually re-imported" uncertainty no longer applies). Once real/load-tested traffic exists, use that row's data to size `api`'s `mem_limit`/`cpus` (currently 2g/512m/1.5, a starting safety-net guess) from observed p95/p99 usage.
 
 - **S3 lifecycle rule needed on the docs bucket for `uploads/pending/` orphan cleanup.** The presigned-upload flow (driver document/selfie uploads, see `docs/superpowers/plans/2026-08-14-driver-doc-presigned-upload.md`) writes objects under `uploads/pending/drivers/{driverId}/...` before `*-complete` promotes them to their permanent `drivers/{id}/...` key. If a driver's app closes before calling `*-complete`, the pending object is orphaned (harmless, just wasted storage). Add an S3 lifecycle rule (S3 console → bucket → Management → Lifecycle rules) scoping to prefix `uploads/pending/` with a 1-day expiration. Not code — the docs bucket isn't Terraform-managed (`aws_s3_bucket` doesn't appear anywhere under `infra/terraform`). Delete this note once done.
 
@@ -504,7 +504,7 @@ plan` (no `-var-file`/`-var="environment=..."` needed, it doesn't take one).
   3. Confirm the app's `DATABASE_URL` uses the `-pooler` host (see `api/.env.example`).
   After the test, run `api/scripts/index-usage-audit.sql` to find unused indexes, dead-tuple pressure, and the slowest query shapes — that data decides whether to build keyset pagination and `ride_status_history` partitioning (both deliberately deferred until proven necessary — see `docs/superpowers/specs/2026-07-26-db-loadtest-readiness-design.md`). `ride_messages` (rider-driver in-app chat, added in 081_ride_chat.sql) should be included in the same test — it's the same one-row-per-event/high-write/read-by-`ride_id` shape as `ride_status_history`, so it should get the same partitioning decision from the same data, not bespoke scaling work.
 
-- **No `production` GitHub Environment / required-reviewer approval gate on deploy.** The `deploy` job already references `environment: production` in `.github/workflows/deploy.yml`, but the environment itself was never created, so it's currently inert (deploys run immediately once checks pass, no human approval pause). Skipped because the `gh` account used to build this pipeline has `push`/`triage` on the repo but not `admin` (confirmed via `gh api repos/cardevelopment01-tech/Ocar-monorepo --jq '.permissions'` → `{"admin":false,...}`), and creating an environment protection rule requires admin. Whoever has admin rights should run:
+- **No `production` GitHub Environment / required-reviewer approval gate on deploy.** The `deploy` job already references `environment: production` in `.github/workflows/deploy.yml`, but the environment itself was never created, so it's currently inert (deploys run immediately once checks pass, no human approval pause). Skipped because the `gh` account used to build this pipeline has `push`/`triage` on the repo but not `admin` (confirmed via `gh api repos/cardevelopment01-tech/WayGo-monorepo --jq '.permissions'` → `{"admin":false,...}`), and creating an environment protection rule requires admin. Whoever has admin rights should run:
   ```bash
   gh api --method PUT repos/:owner/:repo/environments/production
   REVIEWER_ID=$(gh api users/<your-github-username> --jq .id)

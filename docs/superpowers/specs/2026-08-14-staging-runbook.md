@@ -61,7 +61,7 @@ certificate validation. Run:
 Add that CNAME in Cloudflare (DNS only, **not proxied** -- same as prod's
 existing record). Once it propagates, the apply finishes and outputs
 `alb_dns_name`. Add a second Cloudflare CNAME:
-`staging.ocar-api.clienttesting.in` -> that ALB DNS name (DNS only, not
+`staging.waygo-api.clienttesting.in` -> that ALB DNS name (DNS only, not
 proxied -- proxying would break the ALB's own TLS termination).
 
 ## 3. Staging RDS instance (restored from a production snapshot)
@@ -74,10 +74,10 @@ production" requirement for the database tier too):
 1. Take a manual RDS snapshot of the production DB instance (same action as
    client task list item 1 — "take a DB backup"; this snapshot **is** that
    backup, not a separate step):
-   `aws rds create-db-snapshot --db-instance-identifier <prod-instance-id> --db-snapshot-identifier ocar-staging-seed-<date>`
+   `aws rds create-db-snapshot --db-instance-identifier <prod-instance-id> --db-snapshot-identifier waygo-staging-seed-<date>`
 2. Restore a new staging instance from that snapshot, same region
    (`ap-south-1`) and same instance class as production:
-   `aws rds restore-db-instance-from-db-snapshot --db-instance-identifier ocar-staging-db --db-snapshot-identifier ocar-staging-seed-<date> --db-instance-class <same-as-prod>`
+   `aws rds restore-db-instance-from-db-snapshot --db-instance-identifier waygo-staging-db --db-snapshot-identifier waygo-staging-seed-<date> --db-instance-class <same-as-prod>`
 3. Place it in the staging VPC/subnet group (not prod's), confirm its
    security group only allows traffic from staging's ASG, and note its
    endpoint (`-pooler`-equivalent convention doesn't apply to RDS — use the
@@ -129,7 +129,7 @@ in:
   - `JWT_SECRET` -> a fresh, staging-only secret (never reuse prod's)
   - Any Fast2SMS/Exotel/FCM credentials per step 5's decision
 
-    aws ssm put-parameter --name "/ocar/staging/api-env" --type SecureString \
+    aws ssm put-parameter --name "/waygo/staging/api-env" --type SecureString \
       --value "$(cat staging-api-env.txt)" --overwrite
 
 ## 7. Bootstrap the blue/green SSM parameters (one-time, before the first deploy)
@@ -140,9 +140,9 @@ staging ASGs boot by reading their own color's `image-tag` parameter, so a
 fresh `terraform apply` against staging will hang/fail on instance boot until
 these exist:
 
-    aws ssm put-parameter --name "/ocar/staging/active-color" --type String --value "blue"
-    aws ssm put-parameter --name "/ocar/staging/blue/image-tag" --type String --value "<a real sha-XXXXXXX tag already pushed to ghcr.io/<owner>/ocar-api>"
-    aws ssm put-parameter --name "/ocar/staging/green/image-tag" --type String --value "<same tag as blue -- green just needs a placeholder until its first real deploy>"
+    aws ssm put-parameter --name "/waygo/staging/active-color" --type String --value "blue"
+    aws ssm put-parameter --name "/waygo/staging/blue/image-tag" --type String --value "<a real sha-XXXXXXX tag already pushed to ghcr.io/<owner>/waygo-api>"
+    aws ssm put-parameter --name "/waygo/staging/green/image-tag" --type String --value "<same tag as blue -- green just needs a placeholder until its first real deploy>"
 
 After this, staging deploys go through the `Deploy` workflow itself
 (`.github/workflows/deploy.yml`, `workflow_dispatch` with

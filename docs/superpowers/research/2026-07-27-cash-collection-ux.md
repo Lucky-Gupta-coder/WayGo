@@ -26,7 +26,7 @@ Source: web research, 2026-07-27. Verification status flagged throughout.
 ## Design inspiration (Uber, reconstructed — no official screenshots public)
 Hierarchy: exact fare owed **dominant** → amount-log field → confirm/complete. Ola's screen undocumented (not fabricated).
 
-## Applied to Ocar
+## Applied to WayGo
 1. Branch on `payment_channel` set at booking; cash-only screen.
 2. Exact fare large + `SwipeToConfirm` (reuse existing component).
 3. Accrue commission to `driver_wallet_ledger` on cash.

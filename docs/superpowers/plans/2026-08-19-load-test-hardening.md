@@ -44,8 +44,8 @@ The existing `main.js` only does 5-minute ramps — it never tests ASG *reaction
 // thing against staging. Start with a small SPIKE_RATE/SPIKE_RIDERS and step up.
 //
 // Usage:
-//   BASE_URL=https://staging.ocar.example.com \
-//   WS_URL=wss://staging.ocar.example.com \
+//   BASE_URL=https://staging.waygo.example.com \
+//   WS_URL=wss://staging.waygo.example.com \
 //   CATEGORY_ID=1 CITY_ID=1 \
 //   SPIKE_RATE=300 SPIKE_RIDERS=2000 \
 //   k6 run spike.js
@@ -57,7 +57,7 @@ import { connect as sioConnect } from './lib/socketio.js'
 
 const tokens = JSON.parse(open('./tokens.json'))
 
-const BASE_URL = __ENV.BASE_URL || 'https://staging.ocar.example.com'
+const BASE_URL = __ENV.BASE_URL || 'https://staging.waygo.example.com'
 const WS_URL = (__ENV.WS_URL || BASE_URL.replace(/^http/, 'ws')) + '/socket.io/?EIO=4&transport=websocket'
 const CATEGORY_ID = __ENV.CATEGORY_ID || '1'
 const CITY_ID = __ENV.CITY_ID || '1'

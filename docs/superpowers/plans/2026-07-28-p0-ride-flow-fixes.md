@@ -244,7 +244,7 @@ with:
 - [ ] **Step 3: Manual verification (no test framework exists in apps/driver)**
 
 Run: `cd apps/driver && pnpm dev`, complete a test ride end-to-end to the `TripEnd` screen.
-Expected: the commission line briefly shows "(est.)" then updates in place (no flash/jump) to the real `commission_amount` within ~1-2s, matching whatever `commission_percent` is configured in `system_config` (not necessarily 15%). Confirm by checking the `payments` row for that ride: `docker exec ocar_postgres psql -U postgres -d ocar -c "SELECT commission_percent, commission_amount, driver_earning FROM payments WHERE ride_id = <id>;"` — the number on screen must match `driver_earning` exactly.
+Expected: the commission line briefly shows "(est.)" then updates in place (no flash/jump) to the real `commission_amount` within ~1-2s, matching whatever `commission_percent` is configured in `system_config` (not necessarily 15%). Confirm by checking the `payments` row for that ride: `docker exec ocar_postgres psql -U postgres -d waygo -c "SELECT commission_percent, commission_amount, driver_earning FROM payments WHERE ride_id = <id>;"` — the number on screen must match `driver_earning` exactly.
 
 - [ ] **Step 4: Commit**
 
@@ -777,7 +777,7 @@ Add the reason sheet at the end of the component, right before the closing `</di
 
 Run: `cd apps/driver && pnpm dev`. Start a trip, advance past any stops, tap "End trip early", pick a reason, confirm.
 Expected: navigates to `/ride/collect-cash` (cash ride) or `/ride/end` (online/wallet ride) with a non-zero partial fare, matching `actual_distance_km`/`fare_snapshots.total_final` in the DB for that ride. Confirm the ride's `status` is `completed` and `review_reason` contains `"Ended early by driver: <code>"`:
-`docker exec ocar_postgres psql -U postgres -d ocar -c "SELECT status, review_reason, review_flagged_at FROM rides WHERE id = <id>;"`
+`docker exec ocar_postgres psql -U postgres -d waygo -c "SELECT status, review_reason, review_flagged_at FROM rides WHERE id = <id>;"`
 
 - [ ] **Step 4: Commit**
 

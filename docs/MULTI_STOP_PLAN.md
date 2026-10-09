@@ -1,6 +1,6 @@
 # Multi-Stop for Round Trip & Rental — Product, UX & Technical Plan
 
-**Ocar — Issue 4 (client feedback), planning deliverable · 2026-07-09 · no code changed**
+**WayGo — Issue 4 (client feedback), planning deliverable · 2026-07-09 · no code changed**
 
 ---
 
@@ -20,7 +20,7 @@
 1. **Stops live in the route card**, directly under the destination row — never behind a separate screen or settings sheet. The route card *is* the itinerary.
 2. **Sequential add, not free-form drag** at 1–3 stops. Uber only offers drag because it allows editing mid-trip; every app capped at 1–2 stops skips reordering entirely. Below 4 waypoints, "remove and re-add in the right order" costs the user less than learning a drag interaction on a phone.
 3. **No per-stop OTP.** Nobody does it. OTP guards trip start/end (fraud boundary); intermediate stops are guarded by GPS + driver tap.
-4. **Wait time is the real product question**, not routing. On per-km ride types the majors cap wait at ~3 min then meter it. **On hourly products (Ola Rentals) stops are free-form and waiting is simply consumed from the package clock.** This is the key insight for Ocar: *both* target ride types (Round Trip, Rental) are hourly products, so Ocar dodges the hardest part of Uber-style multi-stop — per-stop wait metering — entirely.
+4. **Wait time is the real product question**, not routing. On per-km ride types the majors cap wait at ~3 min then meter it. **On hourly products (Ola Rentals) stops are free-form and waiting is simply consumed from the package clock.** This is the key insight for WayGo: *both* target ride types (Round Trip, Rental) are hourly products, so WayGo dodges the hardest part of Uber-style multi-stop — per-stop wait metering — entirely.
 5. **Fare updates are silent and instant**: the total recomputes; at most a one-line "includes multi-stop fee" disclosure. No modal, no confirmation.
 
 Sources: Uber Help — request a ride with multiple stops; Uber — How to add stops; Uber Help — driver-side multiple stops; Grab MY multi-stop; Grab MM add extra stop; Ridesharing Driver — Lyft stops/round trip; Ridesharing Driver — Uber round trip.
@@ -148,7 +148,7 @@ Stop list mirrors driver state via the `stop:updated` socket event: pending → 
 |---|---|
 | Stop order vs actual route order | v1: visit order = declared order (stated in UI copy). Driver may physically deviate; `reached` events are accepted in any order, sequence is advisory. No route optimization. |
 | Rental stop outside service area | Validate each stop at booking: within N km (suggest 50) of `originCityId`'s center via a parameterized PostGIS `ST_DWithin` — same geofence approach as nearest-city. Reject with a safe error code (`STOP_OUT_OF_SERVICE_AREA`); UI surfaces "This stop is outside your rental's service area." Round trip stops: must lie within the operating triangle (any of the 3 cities' radii). **Not implemented in the v1 build — deferred, scope cut for time; stops are currently only checked for the ~100m duplicate-point rule below, not for being within the service area.** |
-| Fare recompute on add/remove | Pre-booking only: params change → `/select-ride` estimate re-runs → new upfront fare. `fare_snapshots` written at booking is final. **No post-booking stop editing in v1** (Uber allows it; Ocar shouldn't until fare re-snapshot semantics exist). |
+| Fare recompute on add/remove | Pre-booking only: params change → `/select-ride` estimate re-runs → new upfront fare. `fare_snapshots` written at booking is final. **No post-booking stop editing in v1** (Uber allows it; WayGo shouldn't until fare re-snapshot semantics exist). |
 | User removes stop after seeing fare, then books | Harmless by construction: the booked fare is always computed from the params present at booking time; snapshot includes the final `stop_count`. |
 | Max stops | 3, enforced in UI (button disappears), URL parser (loop cap), and Zod (`max(3)`) — three layers. |
 | Duplicate/degenerate stops | Zod refine: reject a stop within ~100m of origin, destination, or another stop (Haversine server-side) with a friendly error; UI can pre-warn. |

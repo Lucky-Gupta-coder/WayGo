@@ -366,7 +366,7 @@ Ordered by value-per-unit-risk.
 - `pg_stat_statements` before and after (enabled per `rds.tf`) — these queries should fall sharply
   in call count. That is the measurement that proves the work was worth doing.
 - A `cache_hits_total` / `cache_misses_total` counter per key group via `prom-client`, added to the
-  `ocar-overview` dashboard. **A hit rate that is high but a stale-value complaint means a missed
+  `waygo-overview` dashboard. **A hit rate that is high but a stale-value complaint means a missed
   invalidation path** — that pairing is the signal worth alerting on.
 - Explicit test: edit a rate card through **each** write path in turn and assert the fare estimate
   changes immediately. This is the test that catches §07's trap.

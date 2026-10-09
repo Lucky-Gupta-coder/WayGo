@@ -19,7 +19,7 @@
 - **In-app FAQ/chat, multi-vehicle switching, dark mode, GST self-service, per-notification-type toggles.** All researched as either already-covered (Wallet tab covers payout), premature (single-vehicle model per CLAUDE.md), or genuinely low-value at this stage. See Fable research notes below if these get revisited.
 - **Ratings history detail page.** `stats.rating_avg` / `top_tags` are already shown on the avatar card. A full ratings-history list would need confirming a driver-facing ratings-list endpoint exists — not confirmed in this pass, so left out rather than guessed at.
 
-**Tech stack:** React 19 + Vite, React Router v6, Tailwind (Ocar `DESIGN.md` tokens), `framer-motion` (already installed and correctly used — `useReducedMotion` respected in both `Profile.tsx` and `BottomNav.tsx`), `lucide-react`. Nothing new to install.
+**Tech stack:** React 19 + Vite, React Router v6, Tailwind (WayGo `DESIGN.md` tokens), `framer-motion` (already installed and correctly used — `useReducedMotion` respected in both `Profile.tsx` and `BottomNav.tsx`), `lucide-react`. Nothing new to install.
 
 ---
 

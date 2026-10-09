@@ -1,5 +1,5 @@
 ---
-name: Ocar
+name: WayGo
 description: Intercity cab booking for Odisha. Reliable, efficient, local.
 colors:
   primary: "#4F46E5"
@@ -146,15 +146,15 @@ components:
     padding: "10px 12px"
 ---
 
-# Design System: Ocar
+# Design System: WayGo
 
 ## 1. Overview
 
 **Creative North Star: "The Reliable Route"**
 
-Ocar's visual system is built around one principle: reliability made visible. Every radius, shadow, and color decision signals that this product was made for the people of Odisha, not adapted from a global template and dropped in. The aesthetic is confident without being loud. Indigo is used as an accent, not a wash. Surfaces are clean and purposeful; there is no decoration that does not reduce cognitive load.
+WayGo's visual system is built around one principle: reliability made visible. Every radius, shadow, and color decision signals that this product was made for the people of Odisha, not adapted from a global template and dropped in. The aesthetic is confident without being loud. Indigo is used as an accent, not a wash. Surfaces are clean and purposeful; there is no decoration that does not reduce cognitive load.
 
-This system avoids two failure modes. First, the generic SaaS-indigo template: the gradient-text hero, the white card grid with eyebrow labels, the full-saturation primary color plastered across most of every screen. Ocar's indigo stays restrained enough that its use is meaningful. Second, the legacy Indian cab app aesthetic: cluttered, low-contrast, banner-heavy, with the primary action buried several scrolls down. On Ocar, the primary action on any screen is unmissable.
+This system avoids two failure modes. First, the generic SaaS-indigo template: the gradient-text hero, the white card grid with eyebrow labels, the full-saturation primary color plastered across most of every screen. WayGo's indigo stays restrained enough that its use is meaningful. Second, the legacy Indian cab app aesthetic: cluttered, low-contrast, banner-heavy, with the primary action buried several scrolls down. On WayGo, the primary action on any screen is unmissable.
 
 The three apps share one visual grammar but serve three different contexts. The user app is mobile, in-transit, possibly one-handed. The driver app is mobile, outdoor, in-motion. The admin portal is desktop-primary, task-dense, information-rich. Motion is purposeful across all three: 150-250 ms for state changes, never choreography for its own sake.
 
@@ -203,7 +203,7 @@ A restrained palette anchored by one saturated indigo. The accent only appears w
 - **Info** (`#0EA5E9`) on **Info Light** (`#E0F2FE`): Neutral informational states, trip details.
 
 ### Named Rules
-**The Indigo Shadow Rule.** Every shadow in the Ocar system is tinted with `rgba(79,70,229,X)`. Never neutral gray. The brand color in the shadow unifies the three apps even when the surface itself is neutral white. If you reach for `rgba(0,0,0,X)` on a shadow, replace it.
+**The Indigo Shadow Rule.** Every shadow in the WayGo system is tinted with `rgba(79,70,229,X)`. Never neutral gray. The brand color in the shadow unifies the three apps even when the surface itself is neutral white. If you reach for `rgba(0,0,0,X)` on a shadow, replace it.
 
 **The Route Rule.** Primary (`#4F46E5`) appears on 25% or less of any screen. Its saturation is the punctuation, not the sentence. A screen where indigo is everywhere is a screen where nothing is primary.
 
@@ -223,17 +223,17 @@ A restrained palette anchored by one saturated indigo. The accent only appears w
 - **Headline** (700, 22px, lh 1.3, ls -0.02em): Section headers, modal titles, ride-card primary labels. Tight tracking distinguishes this from body weight without requiring a font change.
 - **Title** (600, 18px, lh 1.4): Card titles, list item primaries, navigation labels. The workhorse between Display and Body.
 - **Body** (400, 16px, lh 1.6): All prose text, descriptions, supporting content. Minimum size for any reading-length string. Cap line length at 65-75ch on prose; data-dense admin tables may run denser.
-- **Label** (500, 13px, lh 1.4): Form labels, status chips, metadata pairs, table column headers. Never tracked all-caps; Ocar does not use eyebrow text.
+- **Label** (500, 13px, lh 1.4): Form labels, status chips, metadata pairs, table column headers. Never tracked all-caps; WayGo does not use eyebrow text.
 - **Caption** (400, 12px, lh 1.5): Timestamps, fine-print, secondary metadata under a primary label. Use sparingly; do not use for anything the user needs to act on.
 
 ### Named Rules
 **The Two Font Rule.** Space Grotesk (Display/Headline) and Plus Jakarta Sans (everything else) carry all three apps — no third family, no per-app substitutions. If a screen needs hierarchy emphasis within a single role (e.g. two body-weight labels), use weight (400 to 700) and size, not a typeface swap.
 
-**The No Eyebrow Rule.** Ocar does not use small-caps tracked eyebrow labels above section headings. The primary action is the label. Supporting context uses Label weight (500, 13px) as plain text, not as a decorative typography treatment.
+**The No Eyebrow Rule.** WayGo does not use small-caps tracked eyebrow labels above section headings. The primary action is the label. Supporting context uses Label weight (500, 13px) as plain text, not as a decorative typography treatment.
 
 ## 4. Elevation
 
-Ocar uses a tonal ambient shadow system: every shadow is an indigo-tinted ambient glow, never a sharp directional drop shadow. Elevation signals context and focus, not simulated 3D depth. At rest, most surfaces carry only the card shadow. Sheets and modals carry stronger shadows that mark them as temporarily elevated surfaces the user must interact with.
+WayGo uses a tonal ambient shadow system: every shadow is an indigo-tinted ambient glow, never a sharp directional drop shadow. Elevation signals context and focus, not simulated 3D depth. At rest, most surfaces carry only the card shadow. Sheets and modals carry stronger shadows that mark them as temporarily elevated surfaces the user must interact with.
 
 The splash screen is the single exception: it sits on the darkest possible surface (`#0F0D1A`) with an ambient radial indigo glow, a special case that sits outside the three-app system.
 
@@ -254,7 +254,7 @@ The splash screen is the single exception: it sits on the darkest possible surfa
 
 ## 5. Components
 
-Ocar's component vocabulary is conservative. The same button shape appears consistently across each app. Standard affordances are used for standard tasks.
+WayGo's component vocabulary is conservative. The same button shape appears consistently across each app. Standard affordances are used for standard tasks.
 
 ### Buttons
 
@@ -319,11 +319,11 @@ Ocar's component vocabulary is conservative. The same button shape appears consi
 
 - **Ring:** 270-degree arc path `M 78.284 78.284 A 40 40 0 1 0 21.716 78.284`, `stroke-width: 7.5`, `stroke-linecap: round`. Gradient: `#4F46E5` to `#7C3AED`.
 - **Dot:** `cx=78.284 cy=78.284 r=8`. Same gradient. Sits at the open end of the arc, the "speed ring" visual.
-- **Wordmark:** "ocar" lowercase, Space Grotesk 700, `letter-spacing: -0.03em`, `font-size: 22px`. Color: Ink 900 on light surfaces, white on dark.
+- **Wordmark:** "waygo" lowercase, Space Grotesk 700, `letter-spacing: -0.03em`, `font-size: 22px`. Color: Ink 900 on light surfaces, white on dark.
 - **Sizes:** sm (20px ring), md (28px), lg (40px), xl (64px).
 - **Variants:** `color` (gradient, default), `white` (solid white stroke/fill), `mono` (Ink 900 stroke/fill).
 
-### Ocar Spinner (OcarSpinner)
+### WayGo Spinner (OcarSpinner)
 
 A comet-taper arc: a 120-degree rotating arc with a gradient from opaque head to transparent tail. Not the logomark reused; a purpose-built loading indicator.
 
@@ -388,7 +388,7 @@ A comet-taper arc: a 120-degree rotating arc with a gradient from opaque head to
 
 **Typography**
 - Do not import Poppins or DM Sans for new work; they are legacy divergences being phased out.
-- Do not use tracked all-caps eyebrow labels (for example `TEXT-TRANSFORM: UPPERCASE; LETTER-SPACING: 0.1em`). Ocar's voice is direct, not magazine-formatted.
+- Do not use tracked all-caps eyebrow labels (for example `TEXT-TRANSFORM: UPPERCASE; LETTER-SPACING: 0.1em`). WayGo's voice is direct, not magazine-formatted.
 - Do not use font sizes below 12px for anything the user needs to read or act on.
 
 **Buttons**

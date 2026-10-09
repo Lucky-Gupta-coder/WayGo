@@ -10,7 +10,7 @@ const app = createApp()
 let categoryId: number
 let cityId: number
 
-const ADMIN_EMAIL = 'm06-pricing-admin@ocar.app'
+const ADMIN_EMAIL = 'm06-pricing-admin@waygo.app'
 const ADMIN_PASSWORD = 'Admin@1234'
 
 beforeAll(async () => {

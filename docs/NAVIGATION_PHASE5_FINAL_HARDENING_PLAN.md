@@ -1,4 +1,4 @@
-# Ocar Navigation — Phase 5+ Plan: Verify First, Then Close the Real Gaps
+# WayGo Navigation — Phase 5+ Plan: Verify First, Then Close the Real Gaps
 
 **Date:** 2026-07-12
 **Status:** Draft — follows the 2026-07-09/10/11 docs. Phases 1–4 shipped. Client still not satisfied.
@@ -84,7 +84,7 @@ Plus one deliberate abuse drive: intentionally leave the route 5+ times near a f
 
 ### Phase 7 — "Share my trip" live-location link
 
-**Industry standard:** Uber's Share Trip Status sends trusted contacts an SMS/link showing live map location, driver first name, vehicle, and ETA — viewable **without the app** ([Uber Share Status](https://www.uber.com/us/en/ride/how-it-works/share-status/), [Uber Help FAQ](https://help.uber.com/en/riders/article/sharing-your-trip-status-faq?nodeId=e1f8ed2b-c0e5-4456-9c73-552cf11c5581)). Ola and Rapido ship the same. This is the single most visible safety-perception feature Ocar is missing, and the safety module already exists to hang it on.
+**Industry standard:** Uber's Share Trip Status sends trusted contacts an SMS/link showing live map location, driver first name, vehicle, and ETA — viewable **without the app** ([Uber Share Status](https://www.uber.com/us/en/ride/how-it-works/share-status/), [Uber Help FAQ](https://help.uber.com/en/riders/article/sharing-your-trip-status-faq?nodeId=e1f8ed2b-c0e5-4456-9c73-552cf11c5581)). Ola and Rapido ship the same. This is the single most visible safety-perception feature WayGo is missing, and the safety module already exists to hang it on.
 
 **Build:**
 - `ride_share_tokens` table: `ride_id`, `token` (random 128-bit, hashed at rest per the refresh-token pattern), `expires_at` (ride end + 30 min), `revoked_at`.
@@ -93,14 +93,14 @@ Plus one deliberate abuse drive: intentionally leave the route 5+ times near a f
 - Rider entry point: a "Share trip" row next to the SOS button on the tracking screen, reusing `SOSButton.tsx`'s confirm-sheet pattern (`apps/user/components/ui/SOSButton.tsx`).
 - Token invalidated on ride completion + expiry sweep.
 
-**Verification:** open the link on a phone with no Ocar session during a Phase 5 drive; confirm live position updates and that the link 404s after ride end.
+**Verification:** open the link on a phone with no WayGo session during a Phase 5 drive; confirm live position updates and that the link 404s after ride end.
 **Effort:** Medium.
 
 ---
 
 ### Phase 8 — Pre-accept route/fare preview on the driver request card
 
-**Industry standard:** Uber's trip request screen shows upfront payout, surge separately, destination, and estimated trip time/mileage before accept ([Uber upfront fares](https://help.uber.com/en/driving-and-delivering/article/upfront-fares?nodeId=bc83ed7e-6725-41de-afcb-72d263e5589f), [Ridesharing Driver analysis](https://www.ridesharingdriver.com/uber-driver-upfront-fares/)); Uber explicitly markets showing destination pre-accept ([Uber blog](https://www.uber.com/gh/en/blog/see-your-destination-before-accepting-a-ride/)). Ocar drivers currently accept blind on everything except fare + pickup address.
+**Industry standard:** Uber's trip request screen shows upfront payout, surge separately, destination, and estimated trip time/mileage before accept ([Uber upfront fares](https://help.uber.com/en/driving-and-delivering/article/upfront-fares?nodeId=bc83ed7e-6725-41de-afcb-72d263e5589f), [Ridesharing Driver analysis](https://www.ridesharingdriver.com/uber-driver-upfront-fares/)); Uber explicitly markets showing destination pre-accept ([Uber blog](https://www.uber.com/gh/en/blog/see-your-destination-before-accepting-a-ride/)). WayGo drivers currently accept blind on everything except fare + pickup address.
 
 **Build:**
 - Broadcast payload already flows through `api/src/jobs/processors/broadcast.processor.ts` → extend it with `distance_to_pickup_km`, `eta_to_pickup_min`, and the ride's `route_polyline` (the fare snapshot's route geometry already exists server-side from the estimate; do **not** issue a fresh Directions call per broadcast recipient — one route fetch per ride at booking, reuse for every driver offered it; distance-to-pickup is one PostGIS `ST_Distance` per candidate, already computed for dispatch ranking).
@@ -127,7 +127,7 @@ Plus one deliberate abuse drive: intentionally leave the route 5+ times near a f
 
 ### Phase 10 — Driver-side fare/surge visibility parity
 
-**Industry standard:** Uber shows drivers surge as a separately-listed amount and discloses when an upfront fare changes materially mid-flow ([Uber upfront fares](https://help.uber.com/en/driving-and-delivering/article/upfront-fares?nodeId=bc83ed7e-6725-41de-afcb-72d263e5589f), [when fares change](https://www.uber.com/gb/en/blog/understanding-your-upfront-fare-when-it-can-change-and-what-extra-fees-may-apply/)). Ocar's rider gets a `fareDrift` banner; the driver — the person whose earnings drift — gets nothing.
+**Industry standard:** Uber shows drivers surge as a separately-listed amount and discloses when an upfront fare changes materially mid-flow ([Uber upfront fares](https://help.uber.com/en/driving-and-delivering/article/upfront-fares?nodeId=bc83ed7e-6725-41de-afcb-72d263e5589f), [when fares change](https://www.uber.com/gb/en/blog/understanding-your-upfront-fare-when-it-can-change-and-what-extra-fees-may-apply/)). WayGo's rider gets a `fareDrift` banner; the driver — the person whose earnings drift — gets nothing.
 
 **Build:**
 - The producer already exists: `api/src/jobs/processors/dispatch-scheduled.processor.ts` computes drift past `FARE_DRIFT_DISCLOSURE_THRESHOLD` (10%) and emits `fareDrift: { previousFare, currentFare }`. Extend that same emit to the `driver:{driverId}` room (one line in the processor + the `socketEvents` helper) — do not build a second drift computation.
@@ -176,7 +176,7 @@ Take the complaints on record one at a time:
 
 - **"No colored traffic on the roads"** — closed in Phase 4 (traffic-tinted polyline + TrafficLayer + traffic-aware ETA). Feature-complete; Phase 5 confirms it *visibly works* on a congested Cuttack stretch at peak hour, which is the form the client will judge it in.
 - **"Small map" / "icon rather than following"** — closed by heading-up rotation, dynamic zoom, 50° pitch, bearing-derived heading. But these are exactly the features where code-complete ≠ feels-right. If the heading jitters or the camera lags in a real car, the client experiences "still not fixed" no matter what the diff says. Phase 5 is where this complaint actually dies.
-- **"Still not like Google Maps"** — partly the two items above, partly a category error we should name plainly in the client conversation: Ocar's nav will not be pixel-identical to the Google Maps app, because that app is a native product with proprietary rendering. What Ocar *can* match is the behavioral checklist — turn-by-turn, voice, traffic, heading-up, reroute — and after Phase 5 every item on it is verified on the client's own roads, on a driver-class phone.
+- **"Still not like Google Maps"** — partly the two items above, partly a category error we should name plainly in the client conversation: WayGo's nav will not be pixel-identical to the Google Maps app, because that app is a native product with proprietary rendering. What WayGo *can* match is the behavioral checklist — turn-by-turn, voice, traffic, heading-up, reroute — and after Phase 5 every item on it is verified on the client's own roads, on a driver-class phone.
 
 The honest diagnosis: the feature list has been substantially complete since Phase 4. What was never done is proving it in the environment the client evaluates it in. Phase 5 fixes the process failure; Phases 6–10 close the remaining parity gaps a client comparing against Ola/Rapido will notice next (messaging, trip share, pre-accept preview, arrival prompt, fare visibility); Phase 11 hardens the one endpoint the shipped nav work made expensive to abuse. After this, if dissatisfaction persists, it is a requirements conversation — not an engineering gap.
 

@@ -74,7 +74,7 @@ CREATE INDEX driver_verif_pending_idx
 Run: `cd api && pnpm migrate`
 Expected: `046_driver_verifications.sql` applied with no errors. Verify with:
 ```bash
-docker exec ocar_postgres psql -U postgres -d ocar -c "\d driver_verifications"
+docker exec ocar_postgres psql -U postgres -d waygo -c "\d driver_verifications"
 ```
 Expected: table exists with all columns, the CHECK constraint, and all 4 indexes listed.
 

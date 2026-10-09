@@ -54,7 +54,7 @@ Expected: output includes `081_category_fallback_rules.sql` applied, no errors.
 
 - [ ] **Step 3: Verify seed rows**
 
-Run: `docker exec ocar_postgres psql -U postgres -d ocar -c "SELECT s.slug AS category, a.slug AS also_accepts FROM category_fallback_rules f JOIN vehicle_categories s ON s.id = f.category_id JOIN vehicle_categories a ON a.id = f.accepts_category_id ORDER BY s.slug;"`
+Run: `docker exec ocar_postgres psql -U postgres -d waygo -c "SELECT s.slug AS category, a.slug AS also_accepts FROM category_fallback_rules f JOIN vehicle_categories s ON s.id = f.category_id JOIN vehicle_categories a ON a.id = f.accepts_category_id ORDER BY s.slug;"`
 Expected: 3 rows — `luxury|suv`, `sedan|hatchback`, `suv|sedan`.
 
 - [ ] **Step 4: Commit**

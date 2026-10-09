@@ -241,7 +241,14 @@ export function getIO(): Server {
 
 export const socketEvents = {
   sendRideRequest: (driverId: string, data: object) => {
-    getIO().to(`driver:${driverId}`).emit('ride:request', data)
+    const room = `driver:${driverId}`
+    console.log('[DEBUG RIDE FLOW] SOCKET', {
+      rideId: (data as Record<string, unknown>).rideId,
+      driverId,
+      room,
+      emitted: true,
+    })
+    getIO().to(room).emit('ride:request', data)
   },
 
   sendRequestExpired: (driverId: string, rideId: string) => {

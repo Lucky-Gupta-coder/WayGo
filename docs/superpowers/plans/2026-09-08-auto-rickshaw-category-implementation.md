@@ -125,7 +125,7 @@ Expected: migration `097_auto_rickshaw_category` reported as applied, no errors.
 
 Verify:
 ```bash
-docker exec ocar_postgres psql -U postgres -d ocar -c "
+docker exec ocar_postgres psql -U postgres -d waygo -c "
   SELECT slug, max_passengers FROM vehicle_categories WHERE slug = 'auto_rickshaw';
   SELECT ride_type, rate_per_km, min_fare FROM rate_cards rc
     JOIN vehicle_categories vc ON vc.id = rc.category_id WHERE vc.slug = 'auto_rickshaw';
@@ -344,7 +344,7 @@ git commit -m "feat: register auto_rickshaw in admin and user rental category-or
 - [ ] **Step 1: Confirm seed data**
 
 ```bash
-docker exec ocar_postgres psql -U postgres -d ocar -c "
+docker exec ocar_postgres psql -U postgres -d waygo -c "
   SELECT vc.slug, rc.ride_type, rp.duration_minutes, rp.km_limit, rp.package_fare
   FROM vehicle_categories vc
   LEFT JOIN rate_cards rc ON rc.category_id = vc.id AND rc.effective_to IS NULL

@@ -2,12 +2,12 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('@/lib/storage', () => ({
   getUploadUrl: vi.fn().mockResolvedValue('https://signed.example.com/put'),
-  promotePendingUpload: vi.fn().mockResolvedValue('https://ocar-docs.s3.ap-south-1.amazonaws.com/drivers/7/profile_photo/xyz.jpg'),
+  promotePendingUpload: vi.fn().mockResolvedValue('https://waygo-docs.s3.ap-south-1.amazonaws.com/drivers/7/profile_photo/xyz.jpg'),
   getPresignedUrl: vi.fn().mockImplementation((url: string) => Promise.resolve(`${url}?signed=1`)),
 }))
 vi.mock('@/modules/drivers/drivers.repository', () => ({
   findDriverById: vi.fn().mockResolvedValue({ id: BigInt(7) }),
-  upsertDriverDocument: vi.fn().mockResolvedValue({ doc_type: 'profile_photo', file_url: 'https://ocar-docs.s3.ap-south-1.amazonaws.com/drivers/7/profile_photo/xyz.jpg', status: 'pending' }),
+  upsertDriverDocument: vi.fn().mockResolvedValue({ doc_type: 'profile_photo', file_url: 'https://waygo-docs.s3.ap-south-1.amazonaws.com/drivers/7/profile_photo/xyz.jpg', status: 'pending' }),
   setReferenceSelfie: vi.fn().mockResolvedValue(undefined),
 }))
 

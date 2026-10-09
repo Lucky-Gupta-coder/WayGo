@@ -1,10 +1,10 @@
 # Multi-Stop UI/UX Redesign Plan — Rider & Driver
 
-**Ocar · design deliverable · planning only, no code changed**
+**WayGo · design deliverable · planning only, no code changed**
 
 Turns the *functional-but-utilitarian* multi-stop UI into an industry-grade, premium, at-a-glance
 experience. Grounded in: research of Uber/Lyft/Bolt/Grab/Citymapper multi-stop UI, the current
-Ocar implementation (audited below), and Ocar's `DESIGN.md` (indigo `#4F46E5`, violet `#7C3AED`
+WayGo implementation (audited below), and WayGo's `DESIGN.md` (indigo `#4F46E5`, violet `#7C3AED`
 waypoints, Inter, mobile-first, "clarity is the feature", WCAG AA, 44px targets, reduced-motion).
 
 ---

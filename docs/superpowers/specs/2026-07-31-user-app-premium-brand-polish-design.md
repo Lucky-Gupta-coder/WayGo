@@ -15,7 +15,7 @@ Map-heavy screens keep their light, functional UI as-is (no re-theme) — this i
 ## Changes
 
 ### 1. Home hero branding fix
-`app/(main)/home/page.tsx` currently renders literal text `"ocar"` (lowercase, line ~288) in the hero top bar instead of the logo mark used everywhere else post-rebrand. Swap it for `<OcarLogoMark size="sm" />`, matching how login/splash already do it.
+`app/(main)/home/page.tsx` currently renders literal text `"waygo"` (lowercase, line ~288) in the hero top bar instead of the logo mark used everywhere else post-rebrand. Swap it for `<OcarLogoMark size="sm" />`, matching how login/splash already do it.
 
 ### 2. New premium primitives in `globals.css`
 

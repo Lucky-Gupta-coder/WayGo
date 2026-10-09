@@ -28,7 +28,7 @@ Home **re-implements** the pill + bell that `StatusBar` already owns, and the tw
 
 ## 2. Design direction (chosen)
 
-**Reference pick:** Uber Driver's information architecture (status + earnings + alerts, nothing else) rendered with Airbnb's over-map chip treatment (near-opaque white chips, hairline border, soft ambient shadow) — because the real constraint is *drivers reading a phone on a dashboard mount in bright Odisha sun, one-handed*. Don't invent a new header IA for a livelihood tool; render the proven one better, in Ocar indigo.
+**Reference pick:** Uber Driver's information architecture (status + earnings + alerts, nothing else) rendered with Airbnb's over-map chip treatment (near-opaque white chips, hairline border, soft ambient shadow) — because the real constraint is *drivers reading a phone on a dashboard mount in bright Odisha sun, one-handed*. Don't invent a new header IA for a livelihood tool; render the proven one better, in WayGo indigo.
 
 **One component, two skins.** A single `StatusBar` component with a `surface: 'floating' | 'solid'` prop. Everything except the surface is identical across every screen.
 
@@ -125,7 +125,7 @@ Root-cause, minimal-diff approach: **extend the existing `StatusBar` into the si
 The pill is the single most-read element in the app: it's the driver's livelihood-state switch, glanced at from a dashboard mount, at arm's length, in sun. A flat orange fill is the generic delivery-app move and it fails on two axes at once — see the tension below. "Ember" solves both.
 
 ### The concept: *ember, not safety-vest*
-Online is not bright alert-orange (`#F97316` at full saturation reads as a promo banner or a hi-vis vest — cheap, loud, and it's the exact "OLA legacy aesthetic" our anti-references call out). Online is a **deep warm ember** — the pill looks *lit from within*, like a coal. Offline is **cold, dead slate**. The premium feeling doesn't live in either state; it lives in the **contrast between them** — going online is a visible "lights on" moment. This also carries the brand's warm/cool duality honestly: the app is **indigo** (calm, trust, brand); when you're *live and earning*, you glow **ember**. That's a small story, not just a color swap — and it's distinctly Ocar, not a generic status chip.
+Online is not bright alert-orange (`#F97316` at full saturation reads as a promo banner or a hi-vis vest — cheap, loud, and it's the exact "OLA legacy aesthetic" our anti-references call out). Online is a **deep warm ember** — the pill looks *lit from within*, like a coal. Offline is **cold, dead slate**. The premium feeling doesn't live in either state; it lives in the **contrast between them** — going online is a visible "lights on" moment. This also carries the brand's warm/cool duality honestly: the app is **indigo** (calm, trust, brand); when you're *live and earning*, you glow **ember**. That's a small story, not just a color swap — and it's distinctly WayGo, not a generic status chip.
 
 ### Two problems a flat fill ignores (both push the same direction: go deeper)
 1. **Contrast.** White text on `#F97316` (orange-500) is ≈ **2.3:1 — fails AA badly**. White only reaches AA (4.5:1) around orange-800 (`#9A3412`). So a legible white-on-orange pill *must* be deep anyway.

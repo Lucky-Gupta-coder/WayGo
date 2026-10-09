@@ -173,7 +173,7 @@ function AdminLoginForm() {
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                placeholder="admin@ocar.com"
+                placeholder="admin@waygo.com"
                 className="w-full px-4 py-3 rounded-xl border border-border bg-white text-text-primary placeholder:text-text-muted/60 text-sm outline-none focus:border-primary transition-colors"
                 autoComplete="email"
                 autoFocus
@@ -234,7 +234,7 @@ function AdminLoginForm() {
           )}
 
           <p className="text-center text-text-muted mt-8" style={{ fontSize: '11px' }}>
-            Ocar · Internal Tool &nbsp;·&nbsp; Authorised Personnel Only
+            WayGo · Internal Tool &nbsp;·&nbsp; Authorised Personnel Only
           </p>
       </div>
     </div>

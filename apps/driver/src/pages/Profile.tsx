@@ -97,8 +97,8 @@ export default function Profile() {
     if (action === 'vehicle')   { navigate('/profile/vehicle');   return }
     if (action === 'documents') { navigate('/profile/documents'); return }
     if (action === 'personal')  { navigate('/profile/personal');  return }
-    if (action === 'email')     { window.open(`mailto:support@ocar.in?subject=${encodeURIComponent(`Driver ${driver?.code ?? ''} — Support`)}`); return }
-    if (action === 'terms')     { window.open('https://ocar.in/terms'); return }
+    if (action === 'email')     { window.open(`mailto:support@waygo.in?subject=${encodeURIComponent(`Driver ${driver?.code ?? ''} — Support`)}`); return }
+    if (action === 'terms')     { window.open('https://waygo.in/terms'); return }
   }
 
   const displayName  = driver?.full_name ?? driver?.code ?? 'Driver'

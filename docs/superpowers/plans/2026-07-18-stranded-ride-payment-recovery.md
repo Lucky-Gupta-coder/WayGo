@@ -63,7 +63,7 @@ Expected: migration `048_payment_failed_template.sql` runs without error.
 
 - [ ] **Step 3: Verify the row exists**
 
-Run: `docker exec ocar_postgres psql -U postgres -d ocar -c "SELECT slug, channel, subject FROM notification_templates WHERE slug='payment_failed';"`
+Run: `docker exec ocar_postgres psql -U postgres -d waygo -c "SELECT slug, channel, subject FROM notification_templates WHERE slug='payment_failed';"`
 Expected: one row — `payment_failed | push | Payment failed`.
 
 - [ ] **Step 4: Commit**
@@ -812,7 +812,7 @@ export async function openRidePaymentCheckout(
     order_id: opts.orderId,
     amount: Math.round(opts.amount * 100),
     currency: 'INR',
-    name: 'Ocar',
+    name: 'WayGo',
     description: `Ride #${rideId}`,
     handler: async (response: {
       razorpay_order_id: string

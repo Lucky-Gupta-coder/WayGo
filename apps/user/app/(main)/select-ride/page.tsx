@@ -57,7 +57,7 @@ function SelectRideContent() {
   const distanceKm         = parseFloat(sp.get('distanceKm') ?? '10')
   const durationMin        = parseFloat(sp.get('durationMin') ?? '20')
   const originCityId       = sp.get('originCityId') ? parseInt(sp.get('originCityId')!, 10) : undefined
-  const encodedPolyline    = sp.get('polyline') ?? undefined
+  const [encodedPolyline, setEncodedPolyline] = useState<string | undefined>(undefined)
   const riderName          = sp.get('riderName') ?? undefined
   const riderPhone         = sp.get('riderPhone') ?? undefined
 
@@ -134,7 +134,7 @@ function SelectRideContent() {
     let cancelled = false
     geoApi.classifyTrip(originLat, originLng, destinationLat, destinationLng)
       .then(c => {
-        if (cancelled || c.scope !== 'in_city') return
+        if (cancelled || c.scope !== 'in_city' || distanceKm >= 15) return
         const cityLabel = c.cityName ?? 'the city'
         setRedirectToast(`That's inside ${cityLabel}, switching to City Rides`)
         const params = new URLSearchParams({
@@ -151,7 +151,7 @@ function SelectRideContent() {
     return () => { cancelled = true }
   // Only the trip identity should trigger a reclassification, not every render.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [originLat, originLng, destinationLat, destinationLng])
+  }, [originLat, originLng, destinationLat, destinationLng, distanceKm])
 
   // Route through the waypoints so one-way fare covers the real detour. Summing
   // per-leg routed distance IS the through-waypoint total, so no waypoint-aware
@@ -187,6 +187,15 @@ function SelectRideContent() {
   // stopsKey captures stop identity+order; the primitive coords cover origin/dest moves.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [detourPriced, stopsKey, originLat, originLng, destinationLat, destinationLng])
+
+  useEffect(() => {
+    if (!hasOriginDest || stops.length > 0) return
+    let cancelled = false
+    geoApi.getRoute(originLat, originLng, destinationLat, destinationLng)
+      .then(r => { if (!cancelled && r.polyline) setEncodedPolyline(r.polyline) })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [hasOriginDest, originLat, originLng, destinationLat, destinationLng, stops.length])
 
   // tripHours: from URL (round_trip from /round-trip page) or inline selection
   const tripHours = rideType === 'round_trip'

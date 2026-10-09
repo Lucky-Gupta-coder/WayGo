@@ -621,7 +621,7 @@ trigger for the one that's already there. `endRideEarlyAsDriver` already applies
 ## 06. What's explicitly deferred, and why
 
 - **Subscription-based driver billing** — the audit found no subscription tier exists at all
-  (only commission and prepaid-package). Not a bug to fix here; it's a product decision (does Ocar
+  (only commission and prepaid-package). Not a bug to fix here; it's a product decision (does WayGo
   want a subscription tier?) that needs its own spec if the answer is yes. Flagged, not designed.
 - **Participant-facing dispute chat** — `dispute_actions` is admin-only internal notes; there is no
   rider↔driver two-way thread. Same category as above: a feature gap, not a hardening fix, and out

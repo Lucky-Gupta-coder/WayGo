@@ -107,7 +107,7 @@ export default function WalletPage() {
             <Wallet size={18} color="rgba(255,255,255,0.85)" strokeWidth={1.6} />
           </div>
           <div>
-            <p className="text-xs font-medium" style={{ color: 'rgba(255,255,255,0.48)' }}>Ocar Wallet</p>
+            <p className="text-xs font-medium" style={{ color: 'rgba(255,255,255,0.48)' }}>WayGo Wallet</p>
             <p className="text-sm font-semibold text-white">Cashback & referral credits</p>
           </div>
         </div>

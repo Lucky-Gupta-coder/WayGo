@@ -69,7 +69,7 @@ discovery.relabel "containers" {
 
   rule {
     target_label = "service"
-    replacement   = "ocar"
+    replacement   = "waygo"
   }
 
   rule {
@@ -165,7 +165,7 @@ git commit -m "add alloy service to docker-compose.prod.yml"
 
 **Files:**
 - Modify: `.env.prod.example`
-- Modify (on the VPS only, NOT in this repo): `/home/ubuntu/Ocar-monorepo/.env.prod`
+- Modify (on the VPS only, NOT in this repo): `/home/ubuntu/WayGo-monorepo/.env.prod`
 
 - [ ] **Step 1: Add placeholders to the committed example file**
 
@@ -182,7 +182,7 @@ GRAFANA_CLOUD_API_KEY=
 # per-host/per-env labels (see spec MUST-DO #2). ALLOY_HOSTNAME must be unique
 # per server once you add a second VPS.
 ALLOY_ENV=production
-ALLOY_HOSTNAME=ocar-vps-1
+ALLOY_HOSTNAME=waygo-vps-1
 ```
 
 - [ ] **Step 2: Commit the example file**
@@ -194,7 +194,7 @@ git commit -m "document Grafana Cloud/Alloy env vars in .env.prod.example"
 
 - [ ] **Step 3: Add the real values to the VPS's `.env.prod` — manual, on the server**
 
-SSH to the VPS (same host `secrets.VPS_HOST` in CI targets) and edit `/home/ubuntu/Ocar-monorepo/.env.prod` directly, pasting in the three real credentials from Task 1 plus `ALLOY_ENV=production` and `ALLOY_HOSTNAME=ocar-vps-1`. This file is never committed and CI never writes to it — it's edited by hand today, same as every other secret in it (e.g. `RAZORPAY_KEY_SECRET`).
+SSH to the VPS (same host `secrets.VPS_HOST` in CI targets) and edit `/home/ubuntu/WayGo-monorepo/.env.prod` directly, pasting in the three real credentials from Task 1 plus `ALLOY_ENV=production` and `ALLOY_HOSTNAME=waygo-vps-1`. This file is never committed and CI never writes to it — it's edited by hand today, same as every other secret in it (e.g. `RAZORPAY_KEY_SECRET`).
 
 ---
 
@@ -206,7 +206,7 @@ SSH to the VPS (same host `secrets.VPS_HOST` in CI targets) and edit `/home/ubun
 
 ```bash
 ssh <user>@<VPS_HOST>
-cd /home/ubuntu/Ocar-monorepo
+cd /home/ubuntu/WayGo-monorepo
 git pull
 ```
 
@@ -242,7 +242,7 @@ curl -s http://localhost:4000/api/v1/geo/cities > /dev/null
 
 In the Grafana Cloud portal → Explore → select the Loki datasource, run:
 ```logql
-{service="ocar", env="production", host="ocar-vps-1"}
+{service="waygo", env="production", host="waygo-vps-1"}
 ```
 Expected: log lines appear within ~10-30 seconds, each with a JSON body containing `requestId`, `level`, `msg`, and the request path — confirming the label discipline from Task 2 (only `service`/`env`/`host`/`container` as labels) and that `requestId` is still present, just inside the body rather than as a label.
 
@@ -250,7 +250,7 @@ Expected: log lines appear within ~10-30 seconds, each with a JSON body containi
 
 Still in Explore, run:
 ```logql
-{service="ocar"}
+{service="waygo"}
 ```
 and check the label list shown in the UI sidebar — it should show only `service`, `env`, `host`, `container` as available labels. If `requestId` or any UUID-shaped value shows up as a label, the relabel rule in `infra/alloy/config.alloy` is wrong — fix it before moving on to Task 7, since a cardinality mistake here compounds once traces/metrics (later plans) are added.
 

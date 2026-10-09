@@ -2,7 +2,7 @@ import { pool } from './client'
 import bcrypt from 'bcryptjs'
 
 async function seedAdmin() {
-  const email = 'admin@ocar.com'
+  const email = 'admin@waygo.com'
   const password = 'Admin@1234'
   const role = 'super_admin'
 

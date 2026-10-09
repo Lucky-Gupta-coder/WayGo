@@ -103,7 +103,7 @@ Expected: `064_cash_collection.sql` applied, no error. (If `system_config` INSER
 
 - [ ] **Step 3: Verify schema**
 
-Run: `docker exec ocar_postgres psql -U postgres -d ocar -c "\d driver_wallets" -c "\d rides"`
+Run: `docker exec ocar_postgres psql -U postgres -d waygo -c "\d driver_wallets" -c "\d rides"`
 Expected: no `balance >= 0` check on `driver_wallets`; `rides` has the four new columns.
 
 - [ ] **Step 4: Commit**

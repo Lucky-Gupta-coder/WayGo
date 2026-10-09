@@ -266,7 +266,7 @@ describe('adminLogin', () => {
   it('throws AUTH_OTP_INVALID for an unknown email (does not leak "email not found" vs "wrong password")', async () => {
     vi.mocked(repo.findAdminByEmail).mockResolvedValue(null)
 
-    await expect(adminLogin('nobody@ocar.example', 'whatever', null)).rejects.toMatchObject({
+    await expect(adminLogin('nobody@waygo.example', 'whatever', null)).rejects.toMatchObject({
       code: expect.stringContaining('INVALID'),
     })
     expect(comparePassword).not.toHaveBeenCalled()
@@ -278,7 +278,7 @@ describe('adminLogin', () => {
     } as never)
     vi.mocked(comparePassword).mockResolvedValue(false)
 
-    await expect(adminLogin('admin@ocar.example', 'wrong', null)).rejects.toMatchObject({
+    await expect(adminLogin('admin@waygo.example', 'wrong', null)).rejects.toMatchObject({
       code: expect.stringContaining('INVALID'),
     })
     expect(repo.touchAdminLogin).not.toHaveBeenCalled()
@@ -290,7 +290,7 @@ describe('adminLogin', () => {
     } as never)
     vi.mocked(comparePassword).mockResolvedValue(true)
 
-    const result = await adminLogin('admin@ocar.example', 'correct', '203.0.113.1')
+    const result = await adminLogin('admin@waygo.example', 'correct', '203.0.113.1')
 
     expect(result).toEqual({ pending: true, pendingToken: 'pending-totp-token' })
     expect(repo.touchAdminLogin).not.toHaveBeenCalled()
@@ -303,7 +303,7 @@ describe('adminLogin', () => {
     } as never)
     vi.mocked(comparePassword).mockResolvedValue(true)
 
-    const result = await adminLogin('admin@ocar.example', 'correct', '203.0.113.1')
+    const result = await adminLogin('admin@waygo.example', 'correct', '203.0.113.1')
 
     expect('pending' in result).toBe(false)
     expect(repo.touchAdminLogin).toHaveBeenCalledWith(BigInt(1), '203.0.113.1')

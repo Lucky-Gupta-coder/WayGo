@@ -26,7 +26,7 @@ export default function MaintenanceScreen({ state }: { state: MaintenanceState }
       <div className="space-y-2">
         <p className="text-white text-base font-bold">We&apos;ll be right back</p>
         <p className="text-white/60 text-sm">
-          {state.message ?? 'Ocar is briefly offline for maintenance.'}
+          {state.message ?? 'WayGo is briefly offline for maintenance.'}
         </p>
         {countdown !== null && (
           <p className="text-white/40 text-xs">Retrying in {countdown}s…</p>

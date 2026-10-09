@@ -83,7 +83,7 @@ surge is an invoice" scenario CLAUDE.md's Pending Ops Actions already flags.
 
 Grafana Cloud → **Synthetics → Create check → HTTP**.
 
-- **Target:** `https://ocar-api.clienttesting.in/health`
+- **Target:** `https://waygo-api.clienttesting.in/health`
 - **Frequency:** 60s
 - **Probes:** pick 3+ public probes geographically close to the user base (Mumbai/Singapore if
   available) — this is an intercity Odisha platform, a probe check from São Paulo tells you nothing

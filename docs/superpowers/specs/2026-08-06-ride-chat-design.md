@@ -2,10 +2,10 @@
 
 ## Context
 
-Riders and drivers currently coordinate ("where are you?", "I'm at the pickup point") only by phone call. `apps/user`'s ride tracking screen already has a "Message driver" affordance noted as a non-functional placeholder in `CLAUDE.md`'s Known UI Caveats; the driver app has no equivalent entry point at all. This adds real-time, per-ride text chat, modeled on the architecture patterns researched from Uber's public engineering writeups (persist-then-push, push-notification fallback for the offline party, at-least-once delivery with client-side dedup) and scoped to fit Ocar's existing infra rather than introducing new infrastructure categories.
+Riders and drivers currently coordinate ("where are you?", "I'm at the pickup point") only by phone call. `apps/user`'s ride tracking screen already has a "Message driver" affordance noted as a non-functional placeholder in `CLAUDE.md`'s Known UI Caveats; the driver app has no equivalent entry point at all. This adds real-time, per-ride text chat, modeled on the architecture patterns researched from Uber's public engineering writeups (persist-then-push, push-notification fallback for the offline party, at-least-once delivery with client-side dedup) and scoped to fit WayGo's existing infra rather than introducing new infrastructure categories.
 
 Two prior research artifacts back this design (not committed, session-only):
-- Chat architecture survey (Uber/Ola engineering patterns → mapping onto Ocar's existing Socket.io + `notifyOwner()` stack).
+- Chat architecture survey (Uber/Ola engineering patterns → mapping onto WayGo's existing Socket.io + `notifyOwner()` stack).
 - 20K-concurrent-user scaling plan for the underlying socket infrastructure (multi-instance API + sticky sessions + Redis HA) — tracked separately as ops work, not part of this feature's implementation. See "Scaling notes for later" below.
 
 ## Scope (v1)

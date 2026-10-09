@@ -86,12 +86,12 @@ its own dedicated real estate, not squeezed into the select-ride sheet.
 - Home screen gets no new tile. The search bar flow already leads to this screen for every ride
   type, so one relocation covers one-way, round-trip, and rental consistently (fixes problem #5).
 
-**Why this over a home-screen "Reserve" tile:** Ocar's ride types (one-way/round-trip/rental) are
+**Why this over a home-screen "Reserve" tile:** WayGo's ride types (one-way/round-trip/rental) are
 already the primary home-screen choice, and every one of them can be scheduled: schedule isn't a
 4th ride type, it's a modifier on all three. Bolting a "Reserve" tile next to them would incorrectly
 imply it's a 4th distinct product, and would need its own address-entry flow duplicated from the
 other three. Attaching it to the search step keeps one flow for all ride types and matches Ola's
-model (closer fit for Ocar's information architecture than Uber's separate-product Reserve).
+model (closer fit for WayGo's information architecture than Uber's separate-product Reserve).
 
 ### Lighter-weight alternative (if you want a smaller change first)
 

@@ -303,7 +303,7 @@ resource "aws_autoscaling_group" "api" {
 
   tag {
     key                 = "Project"
-    value               = "ocar"
+    value               = "waygo"
     propagate_at_launch = true
   }
 
@@ -508,7 +508,7 @@ resource "aws_lb_listener_rule" "maintenance" {
       message_body = jsonencode({
         error   = "Service is under maintenance"
         code    = "MAINTENANCE_MODE"
-        message = "Ocar is briefly offline for maintenance. Please try again shortly."
+        message = "WayGo is briefly offline for maintenance. Please try again shortly."
       })
     }
   }
@@ -537,7 +537,7 @@ resource "aws_lb_listener" "http_redirect" {
 }
 
 output "alb_dns_name" {
-  description = "ALB DNS name -- point Cloudflare's ocar-api CNAME here after cutover"
+  description = "ALB DNS name -- point Cloudflare's waygo-api CNAME here after cutover"
   value       = aws_lb.main.dns_name
 }
 ```
@@ -743,18 +743,18 @@ Confirm the plan shown matches step 2's output before typing `yes`.
 The `green` color's launch template will fail to boot until its own image-tag parameter exists (nothing has ever written to it). Seed both colors with the currently-running image tag and create the `active-color` parameter:
 
 ```bash
-CURRENT_TAG=$(aws ssm get-parameter --name /ocar/staging/image-tag --query 'Parameter.Value' --output text)
-aws ssm put-parameter --name /ocar/staging/blue/image-tag --type String --value "$CURRENT_TAG"
-aws ssm put-parameter --name /ocar/staging/green/image-tag --type String --value "$CURRENT_TAG"
-aws ssm put-parameter --name /ocar/staging/active-color --type String --value "blue"
+CURRENT_TAG=$(aws ssm get-parameter --name /waygo/staging/image-tag --query 'Parameter.Value' --output text)
+aws ssm put-parameter --name /waygo/staging/blue/image-tag --type String --value "$CURRENT_TAG"
+aws ssm put-parameter --name /waygo/staging/green/image-tag --type String --value "$CURRENT_TAG"
+aws ssm put-parameter --name /waygo/staging/active-color --type String --value "blue"
 ```
 
-(The old shared `/ocar/staging/image-tag` parameter is now unused — leave it in place for now, delete it once Task 10's workflow has run successfully at least once, in case a fast rollback to the pre-blue/green pipeline is ever needed.)
+(The old shared `/waygo/staging/image-tag` parameter is now unused — leave it in place for now, delete it once Task 10's workflow has run successfully at least once, in case a fast rollback to the pre-blue/green pipeline is ever needed.)
 
 - [ ] **Step 5: Confirm staging is healthy after the apply**
 
 ```bash
-curl -sk -H "Host: staging.ocar-api.clienttesting.in" "https://$(terraform output -raw alb_dns_name)/health"
+curl -sk -H "Host: staging.waygo-api.clienttesting.in" "https://$(terraform output -raw alb_dns_name)/health"
 ```
 
 Expected: `200` with the same health payload as before this task started — the `blue` ASG never restarted, this whole task should be invisible to live traffic.
@@ -796,11 +796,11 @@ Replace the entire `deploy:` job (lines 128-346) in `.github/workflows/deploy.ym
       packages: read
     env:
       IMAGE_TAG: ${{ needs.build-push.outputs.image_tag }}
-      PROJECT: ocar
+      PROJECT: waygo
       ENVIRONMENT: prod
-      ACTIVE_COLOR_PARAM: /ocar/prod/active-color
+      ACTIVE_COLOR_PARAM: /waygo/prod/active-color
       ALB_DNS_NAME: ${{ vars.ALB_DNS_NAME }}
-      ALB_NAME: ocar-prod-alb
+      ALB_NAME: waygo-prod-alb
       BAKE_SECONDS: 600
       BAKE_POLL_INTERVAL: 30
       MAX_5XX_PER_POLL: 5
@@ -852,7 +852,7 @@ Replace the entire `deploy:` job (lines 128-346) in `.github/workflows/deploy.ym
 
       - name: Run migrations (new image, current color still serving all traffic)
         env:
-          DB_INSTANCE_ID: ocar-prod-db
+          DB_INSTANCE_ID: waygo-prod-db
           INSTANCE_ID: ${{ steps.instance.outputs.id }}
         run: |
           set -e
@@ -868,7 +868,7 @@ Replace the entire `deploy:` job (lines 128-346) in `.github/workflows/deploy.ym
           cat > /tmp/ssm-commands.json <<EOF
           {
             "commands": [
-              "docker run --rm --pull always --name db_migrate -e DB_HOST=$DB_HOST -e DB_PORT=$DB_PORT -e DB_NAME=$DB_NAME -e DB_USER=$DB_USER -e DB_SECRET_ARN=$DB_SECRET_ARN -e AWS_REGION=$AWS_REGION --entrypoint node ghcr.io/${{ github.repository_owner }}/ocar-api:$IMAGE_TAG dist/db/migrate.js"
+              "docker run --rm --pull always --name db_migrate -e DB_HOST=$DB_HOST -e DB_PORT=$DB_PORT -e DB_NAME=$DB_NAME -e DB_USER=$DB_USER -e DB_SECRET_ARN=$DB_SECRET_ARN -e AWS_REGION=$AWS_REGION --entrypoint node ghcr.io/${{ github.repository_owner }}/waygo-api:$IMAGE_TAG dist/db/migrate.js"
             ]
           }
           EOF
@@ -876,7 +876,7 @@ Replace the entire `deploy:` job (lines 128-346) in `.github/workflows/deploy.ym
           CMD_ID=$(aws ssm send-command \
             --instance-ids "$INSTANCE_ID" \
             --document-name "AWS-RunShellScript" \
-            --comment "ocar-api migration for $IMAGE_TAG" \
+            --comment "waygo-api migration for $IMAGE_TAG" \
             --parameters file:///tmp/ssm-commands.json \
             --query 'Command.CommandId' --output text)
 
@@ -942,7 +942,7 @@ Replace the entire `deploy:` job (lines 128-346) in `.github/workflows/deploy.ym
         run: |
           set +e
           for i in 1 2 3; do
-            if curl -sk --max-time 5 -H "Host: ocar-api.clienttesting.in" -H "X-Deploy-Preview: ${{ steps.colors.outputs.idle }}" \
+            if curl -sk --max-time 5 -H "Host: waygo-api.clienttesting.in" -H "X-Deploy-Preview: ${{ steps.colors.outputs.idle }}" \
                  "https://$ALB_DNS_NAME/api/v1/geo/cities" | grep -q '"slug"'; then
               echo "result=success" >> "$GITHUB_OUTPUT"
               exit 0
@@ -1055,7 +1055,7 @@ Per the design spec's own rollout plan (??4) — do this before touching prod (T
 
 - [ ] **Step 1: Trigger a real deploy through the new pipeline against staging** and confirm: idle color scales up, passes health checks, smoke test passes via the preview header, listener flips, bake period runs its full `BAKE_SECONDS`, old color scales to 0. Watch the Actions log for each named step above to confirm it actually executed (not skipped).
 
-- [ ] **Step 2: Trigger a second and third deploy**, confirming the color alternates blue -> green -> blue each time (check `/ocar/staging/active-color` in SSM after each).
+- [ ] **Step 2: Trigger a second and third deploy**, confirming the color alternates blue -> green -> blue each time (check `/waygo/staging/active-color` in SSM after each).
 
 - [ ] **Step 3: Deliberately break a deploy** (push a commit that makes `/health` return non-200, or a migration that fails) and confirm:
   - If it fails at the health-check/smoke-test stage: idle color scales back to 0, active color was never touched, no listener flip happened.
@@ -1091,7 +1091,7 @@ period watching `HTTPCode_Target_5XX_Count` on the new active color, with instan
 rollback if it trips -> scale the old color down to 0 once the bake is clean. Both colors' ASGs
 exist in Terraform at all times (`min_size=0`); the deploy workflow (`.github/workflows/deploy.yml`,
 triggered by `workflow_run` off `ci.yml`) owns which one is actually scaled up and live via the
-`/ocar/{env}/active-color` and `/ocar/{env}/{color}/image-tag` SSM parameters -- Terraform never
+`/waygo/{env}/active-color` and `/waygo/{env}/{color}/image-tag` SSM parameters -- Terraform never
 touches those. See `docs/superpowers/specs/2026-08-28-blue-green-deployment-design.md` and
 `docs/superpowers/plans/2026-08-30-blue-green-deployment-implementation.md` for the full design and
 implementation history. Rollback (whether idle-stage failure or bake-window failure) does NOT revert

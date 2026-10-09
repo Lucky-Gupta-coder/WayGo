@@ -214,7 +214,7 @@ export default function ProfilePage() {
           variants={fadeUp}
           className="text-center text-text-muted text-xs mt-6"
         >
-          Ocar v1.0.0
+          WayGo v1.0.0
         </motion.p>
       </motion.div>
 
@@ -241,7 +241,7 @@ export default function ProfilePage() {
             >
               <div className="w-10 h-1 bg-border rounded-full mx-auto mb-5" />
               <p className="text-base font-bold text-text-primary mb-1">Sign out?</p>
-              <p className="text-sm text-text-muted mb-6">You will be signed out of your Ocar account.</p>
+              <p className="text-sm text-text-muted mb-6">You will be signed out of your WayGo account.</p>
               <div className="flex gap-3">
                 <motion.button
                   onClick={() => setShowSignOut(false)}

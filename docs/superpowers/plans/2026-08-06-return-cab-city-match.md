@@ -46,7 +46,7 @@ UPDATE return_cab_routes
 
 - [ ] **Step 2: Run** — `cd api && pnpm migrate`. Expected: `082_return_cab_city_match.sql` applied, no errors.
 
-- [ ] **Step 3: Verify** — `docker exec ocar_postgres psql -U postgres -d ocar -c "\d return_cab_routes"`. Expected: `destination_city_id` column present with FK to cities; `match_radius_metres` default `3000`.
+- [ ] **Step 3: Verify** — `docker exec ocar_postgres psql -U postgres -d waygo -c "\d return_cab_routes"`. Expected: `destination_city_id` column present with FK to cities; `match_radius_metres` default `3000`.
 
 - [ ] **Step 4: Commit** — `git add api/src/db/migrations/082_return_cab_city_match.sql && git commit -m "feat(rides): add destination_city_id to return_cab_routes, pickup radius 3km"`
 

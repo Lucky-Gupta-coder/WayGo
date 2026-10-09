@@ -762,7 +762,7 @@ Expected: no errors.
 Run: `cd api && pnpm migrate`
 Expected: `091_driver_warning_config.sql` runs; output lists it as applied.
 
-Run: `docker exec ocar_postgres psql -U postgres -d ocar -c "SELECT key, value FROM system_config WHERE key LIKE 'driver_warning%';"`
+Run: `docker exec ocar_postgres psql -U postgres -d waygo -c "SELECT key, value FROM system_config WHERE key LIKE 'driver_warning%';"`
 Expected: two rows — `driver_warning_suspend_threshold | 3` and `driver_warning_window_days | 90`.
 
 - [ ] **Step 9: Commit**
@@ -1016,10 +1016,10 @@ Expected: no errors.
 Run: `cd api && pnpm migrate`
 Expected: `092_safety_escalation_columns.sql` runs.
 
-Run: `docker exec ocar_postgres psql -U postgres -d ocar -c "\d sos_alerts" | grep escalated_at`
+Run: `docker exec ocar_postgres psql -U postgres -d waygo -c "\d sos_alerts" | grep escalated_at`
 Expected: `escalated_at | timestamp with time zone`.
 
-Run: `docker exec ocar_postgres psql -U postgres -d ocar -c "\d disputes" | grep escalated_at`
+Run: `docker exec ocar_postgres psql -U postgres -d waygo -c "\d disputes" | grep escalated_at`
 Expected: `escalated_at | timestamp with time zone`.
 
 - [ ] **Step 10: Run the full safety test suite**

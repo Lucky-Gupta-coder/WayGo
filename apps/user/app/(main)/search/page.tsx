@@ -263,12 +263,11 @@ function SearchContent() {
       // No fallback to city 1: if the lookup failed, omit it and let the
       // backend's own city_id IS NULL -> global-rate-card convention apply.
       if (nearestCity) params.set('originCityId', String(nearestCity.id))
-      if (route.polyline) params.set('polyline', route.polyline)
       if (rideType)      params.set('rideType', rideType)
       if (scheduledFor)  params.set('scheduledFor', scheduledFor.toISOString())
       if (bookingForOther) { params.set('riderName', riderName); params.set('riderPhone', riderPhone) }
 
-      const isInCity  = classification?.scope === 'in_city'
+      const isInCity  = classification?.scope === 'in_city' && route.distanceKm < 15
       const cityLabel = classification?.cityName ?? 'the city'
 
       function go(path: string) {

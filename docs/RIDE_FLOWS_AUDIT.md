@@ -662,7 +662,7 @@ Currently all driver state lives in Postgres (`driver_sessions`, `driver_locatio
 **Architecture:**
 - Store `driverId → { lat, lng, sessionId, status, cityId }` in Redis Hash + Redis GEO set per city
 - `driver:{driverId}:active_ride` key for the current ride (set on accept, del on complete/cancel)
-- `findNearbyDrivers` becomes `GEORADIUS ocar:drivers:{cityId} lng lat 5 km`, microseconds instead of milliseconds
+- `findNearbyDrivers` becomes `GEORADIUS waygo:drivers:{cityId} lng lat 5 km`, microseconds instead of milliseconds
 - `gps_tracks` remains the durable append-only log (flushed via BullMQ batch, already implemented)
 - `driver_location_snapshots` becomes a Redis cache with Postgres as backup, not primary
 

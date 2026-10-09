@@ -1,4 +1,4 @@
-# Ocar Platform — Service & Infrastructure Cost Estimate
+# WayGo Platform — Service & Infrastructure Cost Estimate
 
 **Prepared:** 17 Aug 2026
 **Region:** ap-south-1 (Mumbai)

@@ -91,7 +91,7 @@ Expected output includes `ran: 087_add_jajpur_road_and_fix_gaps.sql` (this migra
 - [ ] **Step 3: Verify the row**
 
 ```powershell
-docker exec ocar_postgres psql -U postgres -d ocar -c "SELECT id, name, slug, ST_Y(centroid::geometry) lat, ST_X(centroid::geometry) lng, is_rental_enabled FROM cities WHERE slug = 'jajpur-road';"
+docker exec ocar_postgres psql -U postgres -d waygo -c "SELECT id, name, slug, ST_Y(centroid::geometry) lat, ST_X(centroid::geometry) lng, is_rental_enabled FROM cities WHERE slug = 'jajpur-road';"
 ```
 Expected: one row, `lat ≈ 20.9587602`, `lng ≈ 86.1226688`, `is_rental_enabled = t`.
 
@@ -135,7 +135,7 @@ WHERE slug IN ('angul', 'jajpur', 'jajpur-road', 'paradeep', 'puri');
 - [ ] **Step 2: Verify**
 
 ```powershell
-docker exec ocar_postgres psql -U postgres -d ocar -c "SELECT slug, ST_Y(centroid::geometry) lat, ST_X(centroid::geometry) lng, is_rental_enabled FROM cities WHERE slug IN ('angul','jajpur','jajpur-road','paradeep','puri') ORDER BY slug;"
+docker exec ocar_postgres psql -U postgres -d waygo -c "SELECT slug, ST_Y(centroid::geometry) lat, ST_X(centroid::geometry) lng, is_rental_enabled FROM cities WHERE slug IN ('angul','jajpur','jajpur-road','paradeep','puri') ORDER BY slug;"
 ```
 Expected: all five rows `is_rental_enabled = t`; `angul` lat/lng ≈ `20.8382426 / 85.0973949`; `jajpur` lat/lng ≈ `20.8522696 / 86.3385714`.
 
@@ -188,7 +188,7 @@ Expected output includes `ran: 086_backfill_city_boundaries.sql` and `ran: 087_a
 - [ ] **Step 3: Verify boundary geometry type and containment**
 
 ```powershell
-docker exec ocar_postgres psql -U postgres -d ocar -c "SELECT slug, GeometryType(boundary), ST_Contains(boundary, ST_SetSRID(ST_MakePoint(85.0973949, 20.8382426), 4326)) FROM cities WHERE slug IN ('angul','jajpur-road');"
+docker exec ocar_postgres psql -U postgres -d waygo -c "SELECT slug, GeometryType(boundary), ST_Contains(boundary, ST_SetSRID(ST_MakePoint(85.0973949, 20.8382426), 4326)) FROM cities WHERE slug IN ('angul','jajpur-road');"
 ```
 Expected: `GeometryType = POLYGON` for both rows, `ST_Contains = t` for both (the centroid must fall inside its own buffer).
 

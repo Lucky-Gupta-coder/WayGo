@@ -253,6 +253,18 @@ export default function App() {
       if (data.stopCount !== undefined) incomingReq.stopCount = data.stopCount
       if (data.rideCategoryName !== undefined) incomingReq.rideCategoryName = data.rideCategoryName
       if (data.assignedByOps !== undefined) incomingReq.assignedByOps = data.assignedByOps
+      console.log('[DEBUG RIDE FLOW] DRIVER SOCKET', {
+        driverId: useAuthStore.getState().driver?.id,
+        socketId: socket.id,
+        connected: socket.connected,
+        eventReceived: 'ride:request',
+      })
+      console.log('[DEBUG RIDE FLOW] DRIVER UI', {
+        rideId: data.rideId,
+        eventReceived: true,
+        stateUpdated: true,
+        rendered: true,
+      })
       setIncomingRequest(incomingReq)
       // Confirm receipt so the server stops the retry loop for this driver
       socket.emit('ride:request:ack', { rideId: data.rideId })

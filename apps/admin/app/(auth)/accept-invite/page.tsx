@@ -91,10 +91,10 @@ function AcceptInviteForm() {
             </h1>
             <p className="text-text-muted text-sm mt-1.5">
               {status === 'valid' && inviteEmail
-                ? `Set a password for ${inviteEmail} to finish joining Ocar admin`
+                ? `Set a password for ${inviteEmail} to finish joining WayGo admin`
                 : status === 'invalid'
                   ? 'This invite link can no longer be used'
-                  : 'Set a password to finish joining the Ocar admin panel'}
+                  : 'Set a password to finish joining the WayGo admin panel'}
             </p>
           </div>
 
@@ -176,7 +176,7 @@ function AcceptInviteForm() {
           )}
 
           <p className="text-center text-text-muted mt-8" style={{ fontSize: '11px' }}>
-            Ocar · Internal Tool &nbsp;·&nbsp; Authorised Personnel Only
+            WayGo · Internal Tool &nbsp;·&nbsp; Authorised Personnel Only
           </p>
       </div>
     </div>

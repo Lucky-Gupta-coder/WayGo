@@ -122,7 +122,7 @@ The seed template (`api/src/db/migrations/036_notification_templates.sql:81-83`)
 
 ```sql
   ('ride_completed', 'push', 'Ride Complete',
-   'Your ride is complete. Thank you for riding with Ocar!',
+   'Your ride is complete. Thank you for riding with WayGo!',
    ...
 ```
 
@@ -133,7 +133,7 @@ Rather than editing an already-applied migration, add a new one. Create `api/src
 -- unlike its SMS sibling (which already has {{fareStr}}) — this is why the
 -- rider's push/in-app notification never mentioned the billed amount.
 UPDATE notification_templates
-SET body = 'Your ride is complete.{{fareStr}} Thank you for riding with Ocar!',
+SET body = 'Your ride is complete.{{fareStr}} Thank you for riding with WayGo!',
     variables_schema = '{"required": [], "optional": ["fareStr"]}',
     version = version + 1
 WHERE slug = 'ride_completed' AND channel = 'push' AND is_active;
@@ -144,7 +144,7 @@ WHERE slug = 'ride_completed' AND channel = 'push' AND is_active;
 Run: `cd api && pnpm migrate`
 Expected: migration `065_ride_completed_push_fare` applied.
 
-Complete a ride end-to-end (start OTP → end OTP as driver, cash or online payment) and check the rider's in-app notification feed (`/notifications`) and push notification body — confirm it now reads "Your ride is complete. Total fare: ₹NNN. Thank you for riding with Ocar!" instead of the amount-less version.
+Complete a ride end-to-end (start OTP → end OTP as driver, cash or online payment) and check the rider's in-app notification feed (`/notifications`) and push notification body — confirm it now reads "Your ride is complete. Total fare: ₹NNN. Thank you for riding with WayGo!" instead of the amount-less version.
 
 - [ ] **Step 4: Commit**
 

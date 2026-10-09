@@ -112,7 +112,7 @@ export default function Wallet() {
         order_id: res.data.orderId,
         amount: (res.data.amount ?? 0) * 100,
         currency: 'INR',
-        name: 'Ocar',
+        name: 'WayGo',
         description: 'Wallet Top-up',
         handler: async (response: { razorpay_payment_id: string; razorpay_signature: string }) => {
           await api.post('/api/v1/payments/wallet/driver/topup/verify', {

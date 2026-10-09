@@ -200,7 +200,7 @@ export const notificationsWorker = new Worker(
         const { subject, body } = await renderTemplate('admin_invite', 'email', {
           redeemUrl, expiresAt: data.expiresAt,
         })
-        await sendEmail(data.email, subject ?? 'You\'ve been invited to Ocar admin', body)
+        await sendEmail(data.email, subject ?? 'You\'ve been invited to WayGo admin', body)
         await notifService.markSent(logId)
       } catch (err) {
         await notifService.markFailed(logId, err instanceof Error ? err.message : String(err))

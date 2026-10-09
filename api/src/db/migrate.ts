@@ -113,6 +113,8 @@ async function migrate(): Promise<void> {
           END LOOP;
         END $$;
       `)
+      // Drop specific functions
+      await client.query(`DROP FUNCTION IF EXISTS prevent_admin_audit_log_mutation CASCADE;`)
       console.log('All tables, enums, and sequences dropped.')
     }
 

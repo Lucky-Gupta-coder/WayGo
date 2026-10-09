@@ -2,7 +2,7 @@ export type AdminRole = 'super_admin' | 'ops_admin' | 'finance_admin' | 'support
 
 export const mockAdmin = {
   name: 'Aryan Mehta',
-  email: 'aryan@ocar.in',
+  email: 'aryan@waygo.in',
   role: 'super_admin' as AdminRole,
   initials: 'AM',
 }

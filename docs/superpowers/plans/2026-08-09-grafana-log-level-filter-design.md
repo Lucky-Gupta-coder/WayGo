@@ -2,7 +2,7 @@
 
 **Date:** 2026-08-09
 **Driver:** Follow-up to `2026-08-08-observability-stack-design.md`. Scrolling the unfiltered "Live Logs"
-panel in `ocar-overview.json` to find one error buried between 30s-interval polling noise
+panel in `waygo-overview.json` to find one error buried between 30s-interval polling noise
 (admin SOS badge, unread-count badges) is too slow. Need a self-serve filter for a repeatable
 Viewer-role account (future support staff), without granting Explore access or an Editor role.
 
@@ -11,7 +11,7 @@ no CI/provisioning automation — deliberately, see "Rejected" below.
 
 ---
 
-## Change 1 — template variable on `ocar-overview.json`
+## Change 1 — template variable on `waygo-overview.json`
 
 Add a `templating.list` entry, a `custom` variable named `min_level`:
 
@@ -27,11 +27,11 @@ history (`level >= 50`).
 
 ## Change 2 — Live Logs panel query
 
-`ocar-overview.json`, panel id `9` ("ocar-api / nginx logs"), `targets[0].expr`:
+`waygo-overview.json`, panel id `9` ("waygo-api / nginx logs"), `targets[0].expr`:
 
 ```diff
-- {service="ocar", env="production"}
-+ {service="ocar", env="production"} | json | level >= $min_level
+- {service="waygo", env="production"}
++ {service="waygo", env="production"} | json | level >= $min_level
 ```
 
 `level` is not promoted to a Loki label (per the existing spec's MUST-DO #2 cardinality rule) —

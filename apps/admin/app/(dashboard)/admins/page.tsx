@@ -221,7 +221,7 @@ export default function AdminsPage() {
               type="email"
               value={inviteEmail}
               onChange={e => setInviteEmail(e.target.value)}
-              placeholder="name@ocar.com"
+              placeholder="name@waygo.com"
               className="w-full px-3 py-2 text-sm border border-border rounded-xl outline-none focus:border-primary transition-colors"
               autoFocus
             />

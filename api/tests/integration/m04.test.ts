@@ -25,7 +25,7 @@ const PHONES = {
   docApprovalDriver2: '+919700000105',
 } as const
 
-const ADMIN_EMAIL = 'm04-vehicles-admin@ocar.app'
+const ADMIN_EMAIL = 'm04-vehicles-admin@waygo.app'
 const ADMIN_PASSWORD = 'Admin@1234'
 
 beforeAll(async () => {

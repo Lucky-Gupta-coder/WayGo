@@ -24,8 +24,8 @@ const spaceGrotesk = Space_Grotesk({
 })
 
 export const metadata: Metadata = {
-  title: 'Ocar',
-  description: 'Book a cab in seconds. Ocar is the fastest way to get a ride.',
+  title: 'WayGo',
+  description: 'Book a cab in seconds. WayGo is the fastest way to get a ride.',
 }
 
 export const viewport: Viewport = {

@@ -70,7 +70,7 @@ in_progress, completed, cancelled, no_drivers, returning`
 | `code` | Auto default `USR000001…` — do **not** override. |
 | `phone` | **Reserved synthetic range — see §5.** `TEXT UNIQUE NOT NULL`. Must match app regex `^\+91[6-9]\d{9}$` (`auth.validator.ts:5`, re-enforced `rides.service.ts:85`) if these accounts also log in during the ramp. |
 | `name` | `'LT Rider <n>'` — nullable but set it as a secondary human-visible tag and to make admin-list `search` (`admin.repository.ts:1373` ILIKE on `u.name`) exercise realistically. |
-| `email` | Secondary tag: `loadtest+<code>@ocar.invalid`. `email` is `CITEXT` with **no UNIQUE constraint** (`003_m1_auth.sql:28`) so reuse of a common domain is safe. |
+| `email` | Secondary tag: `loadtest+<code>@waygo.invalid`. `email` is `CITEXT` with **no UNIQUE constraint** (`003_m1_auth.sql:28`) so reuse of a common domain is safe. |
 | `status` | `user_status` — `'active'` for essentially all (`002_enums.sql:8`). |
 | `referral_code` | Leave default (`gen_random_uuid()::TEXT`, UNIQUE) — do not set. |
 | `rating_avg`, `total_ratings` | Added `009_m7_safety.sql:13-15`, NOT NULL default 0. Optional backfill from seeded ratings. |
@@ -274,7 +274,7 @@ cleanup by `phone LIKE '+919999%'`. Assign sequentially from `+919999000000`.
 
 **Secondary tags (so cleanup never depends on one column):**
 - `users.name = 'LT Rider <n>'`
-- `users.email = 'loadtest+<code>@ocar.invalid'` (`email` non-unique CITEXT,
+- `users.email = 'loadtest+<code>@waygo.invalid'` (`email` non-unique CITEXT,
   `003_m1_auth.sql:28` — safe to reuse the domain)
 
 **Cleanup** deletes children first (payments → ratings/rating_tags →
@@ -346,4 +346,4 @@ LIKE '+919999%'` on the actual staging DB and confirm 0 (the `9999` mobile serie
    acceptable for historical rows (it affects only displayed rupee values, not
    the four critical query plans).
 5. **Exact status/type/geo percentages** in §3 are proposed defaults mirroring
-   typical ride-hailing proportions — confirm or adjust to real Ocar ratios.
+   typical ride-hailing proportions — confirm or adjust to real WayGo ratios.

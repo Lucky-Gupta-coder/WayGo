@@ -10,8 +10,8 @@ const FAQS = [
     a: 'Tap the search bar on the home screen, enter your destination, choose a vehicle category, and confirm your booking. A nearby driver will be assigned within seconds.',
   },
   {
-    q: 'What cities does Ocar operate in?',
-    a: 'Ocar currently operates in Bhubaneswar, Cuttack, and Puri, including intercity routes between all three cities.',
+    q: 'What cities does WayGo operate in?',
+    a: 'WayGo currently operates in Bhubaneswar, Cuttack, and Puri, including intercity routes between all three cities.',
   },
   {
     q: 'How do I start my ride?',
@@ -74,7 +74,7 @@ export default function HelpPage() {
 
         <p className="text-[11px] font-semibold text-text-muted uppercase tracking-widest mb-3">Contact</p>
         <a
-          href={rideId ? `mailto:support@ocar.in?subject=${encodeURIComponent(`Help with ride #${rideId}`)}` : 'mailto:support@ocar.in'}
+          href={rideId ? `mailto:support@waygo.in?subject=${encodeURIComponent(`Help with ride #${rideId}`)}` : 'mailto:support@waygo.in'}
           className="card flex items-center gap-3 py-3.5"
         >
           <span className="w-9 h-9 rounded-xl bg-surface-2 flex items-center justify-center flex-shrink-0">
@@ -82,7 +82,7 @@ export default function HelpPage() {
           </span>
           <span className="flex-1 min-w-0">
             <span className="block text-sm font-semibold text-text-primary">Email support</span>
-            <span className="block text-xs text-text-muted mt-0.5">support@ocar.in</span>
+            <span className="block text-xs text-text-muted mt-0.5">support@waygo.in</span>
           </span>
         </a>
       </div>

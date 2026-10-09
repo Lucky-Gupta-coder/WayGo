@@ -2,7 +2,7 @@
 
 <br />
 
-<h1>🚖 Ocar</h1>
+<h1>🚖 WayGo</h1>
 
 <p><strong>A production-grade, full-stack cab booking platform — built for scale, designed for India.</strong><br />
 End-to-end ride management: driver onboarding · real-time GPS · fare engine · payments · analytics.</p>
@@ -32,9 +32,9 @@ End-to-end ride management: driver onboarding · real-time GPS · fare engine ·
 
 ---
 
-## What is Ocar?
+## What is WayGo?
 
-Ocar is a **12-module monorepo** powering a full cab booking ecosystem — think Ola or Uber, built from the ground up with modern tooling and a clean architecture you can actually understand and extend.
+WayGo is a **12-module monorepo** powering a full cab booking ecosystem — think Ola or Uber, built from the ground up with modern tooling and a clean architecture you can actually understand and extend.
 
 It covers the complete lifecycle: a driver registers, gets approved, goes online, receives ride broadcasts, completes trips, earns money — and the platform handles every edge case along the way: OTP verification, geospatial matching, dynamic fare calculation, Razorpay payments, wallet settlements, SOS alerts, dispute resolution, and admin oversight.
 
@@ -219,8 +219,8 @@ cab-booking-platform/
 ### 1 — Clone & Install
 
 ```bash
-git clone https://github.com/cardevelopment01-tech/Ocar-monorepo.git
-cd Ocar-monorepo
+git clone https://github.com/cardevelopment01-tech/WayGo-monorepo.git
+cd WayGo-monorepo
 pnpm install
 ```
 

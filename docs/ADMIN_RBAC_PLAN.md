@@ -270,7 +270,7 @@ don't chain them.
       QR enrollment, recovery codes shown once, disable-with-password) + login page's two-step
       verify UI + axios interceptor redirect on `TOTP_SETUP_REQUIRED`.
 
-      **Left the real seed `admin@ocar.com` account with TOTP disabled** after testing — the
+      **Left the real seed `admin@waygo.com` account with TOTP disabled** after testing — the
       secret generated during testing was never shown to a real authenticator app, so leaving
       it enabled would have locked the actual user out on next login.
 

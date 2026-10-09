@@ -423,7 +423,7 @@ export async function updateDriverVehicle(
     ownerId: driverId,
     type: 'vehicle_corrected',
     title: 'Vehicle details updated',
-    body: 'Your vehicle details were updated by Ocar support to match your registration.',
+    body: 'Your vehicle details were updated by WayGo support to match your registration.',
     payload: { route: 'vehicle' },
   })
 }

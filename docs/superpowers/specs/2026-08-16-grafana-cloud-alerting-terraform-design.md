@@ -44,7 +44,7 @@ bootstrap-split plan (`2026-08-15-terraform-bootstrap-singleton-split.md`) alrea
 AWS resources: a staging apply trying to touch something it doesn't own.
 
 State: own state file, same S3 bucket the rest of Terraform already uses
-(`ocar-terraform-state`, key `observability/terraform.tfstate`), following
+(`waygo-terraform-state`, key `observability/terraform.tfstate`), following
 `infra/terraform/bootstrap/providers.tf`'s exact backend block pattern.
 
 Applied locally (`cd infra/terraform/observability && terraform init && terraform plan/apply`), not
@@ -66,7 +66,7 @@ terraform {
     }
   }
   backend "s3" {
-    bucket       = "ocar-terraform-state"
+    bucket       = "waygo-terraform-state"
     key          = "observability/terraform.tfstate"
     region       = "ap-south-1"
     use_lockfile = true
@@ -109,7 +109,7 @@ one grouped notification instead of one per firing series.
 
 ```hcl
 resource "grafana_contact_point" "default" {
-  name = "ocar-alerts"
+  name = "waygo-alerts"
 
   slack {
     url = var.slack_webhook_url
@@ -176,11 +176,11 @@ resource "grafana_slo" "ride_success" {
     window = "30d"
   }
   destination_datasource { uid = var.prometheus_datasource_uid }
-  label { key = "service", value = "ocar-api" }
+  label { key = "service", value = "waygo-api" }
 
   alerting {
-    fastburn { annotation { name = "runbook_url", value = "https://github.com/cardevelopment01-tech/Ocar-monorepo/blob/main/docs/superpowers/specs/2026-08-16-grafana-cloud-alerting-terraform-design.md" } }
-    slowburn { annotation { name = "runbook_url", value = "https://github.com/cardevelopment01-tech/Ocar-monorepo/blob/main/docs/superpowers/specs/2026-08-16-grafana-cloud-alerting-terraform-design.md" } }
+    fastburn { annotation { name = "runbook_url", value = "https://github.com/cardevelopment01-tech/WayGo-monorepo/blob/main/docs/superpowers/specs/2026-08-16-grafana-cloud-alerting-terraform-design.md" } }
+    slowburn { annotation { name = "runbook_url", value = "https://github.com/cardevelopment01-tech/WayGo-monorepo/blob/main/docs/superpowers/specs/2026-08-16-grafana-cloud-alerting-terraform-design.md" } }
   }
 }
 ```
@@ -207,8 +207,8 @@ per-panel "New alert rule" UI action.
 
 ```hcl
 resource "grafana_synthetic_monitoring_check" "health" {
-  job     = "ocar-api-health"
-  target  = "https://ocar-api.clienttesting.in/health"
+  job     = "waygo-api-health"
+  target  = "https://waygo-api.clienttesting.in/health"
   enabled = true
   probes  = var.synthetic_probe_ids # Mumbai/Singapore — closest to the Odisha user base
   frequency = 60000

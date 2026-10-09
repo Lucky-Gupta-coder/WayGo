@@ -32,7 +32,7 @@ Uber/Ola ~20–25% (+ GST/tax); inDrive ~10%; Rapido flat ₹10–15 or SaaS. Sa
 - Per-driver expected-vs-collected **divergence counter**.
 - OTP-gated completion (already have 4-digit end OTP) makes phantom-complete hard.
 
-## Applied to Ocar (existing infra)
+## Applied to WayGo (existing infra)
 - `driver_wallet_ledger` + `driver_wallets.balance` (make signed) — cash = commission debit, negative = dues.
 - `goOnline` min-balance gate = the dues gate.
 - `fare_snapshots` vs logged amount = reconciliation.

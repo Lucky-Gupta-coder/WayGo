@@ -22,8 +22,8 @@ const spaceGrotesk = Space_Grotesk({
 })
 
 export const metadata: Metadata = {
-  title: 'Ocar Admin',
-  description: 'Ocar platform administration',
+  title: 'WayGo Admin',
+  description: 'WayGo platform administration',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

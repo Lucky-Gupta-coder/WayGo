@@ -91,9 +91,9 @@ Expected: log line applying `047_ride_payment_channel.sql`, no errors.
 
 - [ ] **Step 4: Verify the column and enum value exist**
 
-Run: `docker exec ocar_postgres psql -U postgres -d ocar -c "\d rides" | Select-String payment_channel`
+Run: `docker exec ocar_postgres psql -U postgres -d waygo -c "\d rides" | Select-String payment_channel`
 Expected: a row `payment_channel | character varying(10) | ... default 'cash'`.
-Run: `docker exec ocar_postgres psql -U postgres -d ocar -c "SELECT enum_range(NULL::payment_channel);"`
+Run: `docker exec ocar_postgres psql -U postgres -d waygo -c "SELECT enum_range(NULL::payment_channel);"`
 Expected: the list includes `razorpay_online`.
 
 - [ ] **Step 5: Typecheck + commit**
@@ -1593,7 +1593,7 @@ import { getPaymentChannel, setPaymentChannel, type PaymentChannel } from '@/lib
 const OPTIONS: Array<{ id: PaymentChannel; Icon: typeof Banknote; label: string; sub: string }> = [
   { id: 'cash',   Icon: Banknote,   label: 'Cash',        sub: 'Pay directly to driver' },
   { id: 'online', Icon: CreditCard, label: 'UPI / Cards', sub: 'Pay online via Razorpay' },
-  { id: 'wallet', Icon: Wallet,     label: 'Ocar Wallet', sub: 'Use your wallet balance' },
+  { id: 'wallet', Icon: Wallet,     label: 'WayGo Wallet', sub: 'Use your wallet balance' },
 ]
 
 export default function PaymentMethodsPage() {
@@ -1681,7 +1681,7 @@ Expected: no errors.
 
 - [ ] **Step 6: Manual verification**
 
-Run the API + user app (`cd api && pnpm dev`, `cd apps/user && pnpm dev`). Open `/payment-methods`, pick "UPI / Cards", reload — the selection persists (Check stays on UPI). Book a ride; in the API DB confirm the row: `docker exec ocar_postgres psql -U postgres -d ocar -c "SELECT id, payment_channel FROM rides ORDER BY id DESC LIMIT 1;"` shows `online`. Switch back to Cash and book again → `cash`.
+Run the API + user app (`cd api && pnpm dev`, `cd apps/user && pnpm dev`). Open `/payment-methods`, pick "UPI / Cards", reload — the selection persists (Check stays on UPI). Book a ride; in the API DB confirm the row: `docker exec ocar_postgres psql -U postgres -d waygo -c "SELECT id, payment_channel FROM rides ORDER BY id DESC LIMIT 1;"` shows `online`. Switch back to Cash and book again → `cash`.
 
 - [ ] **Step 7: Commit**
 
@@ -1723,7 +1723,7 @@ async function openRidePaymentCheckout(
     order_id: opts.orderId,
     amount: Math.round(opts.amount * 100),
     currency: 'INR',
-    name: 'Ocar',
+    name: 'WayGo',
     description: `Ride #${rideId}`,
     handler: async (response: {
       razorpay_order_id: string
@@ -1786,7 +1786,7 @@ Expected: no errors.
 
 - [ ] **Step 4: Manual verification (dev mode, no Razorpay keys)**
 
-With no Razorpay keys set (dev), an online-channel ride auto-confirms server-side (Task 6 dev shortcut) and no Checkout opens — verify the payment row: `docker exec ocar_postgres psql -U postgres -d ocar -c "SELECT ride_id, channel, status FROM payments ORDER BY id DESC LIMIT 1;"` shows `razorpay_online | completed`. For a wallet-channel ride with sufficient balance, the same query shows `platform_wallet | completed` and `user_wallet_ledger` has a matching `ride_debit`. (Live Checkout requires real `RAZORPAY_KEY_ID/SECRET`; the script/verify path mirrors the working driver top-up flow.)
+With no Razorpay keys set (dev), an online-channel ride auto-confirms server-side (Task 6 dev shortcut) and no Checkout opens — verify the payment row: `docker exec ocar_postgres psql -U postgres -d waygo -c "SELECT ride_id, channel, status FROM payments ORDER BY id DESC LIMIT 1;"` shows `razorpay_online | completed`. For a wallet-channel ride with sufficient balance, the same query shows `platform_wallet | completed` and `user_wallet_ledger` has a matching `ride_debit`. (Live Checkout requires real `RAZORPAY_KEY_ID/SECRET`; the script/verify path mirrors the working driver top-up flow.)
 
 - [ ] **Step 5: Commit**
 

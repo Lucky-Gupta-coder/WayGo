@@ -110,6 +110,15 @@ export async function processBroadcast(data: BroadcastJobData): Promise<void> {
     }
   }
 
+  console.log('[DEBUG RIDE FLOW] DRIVER SEARCH', {
+    rideId: data.rideId,
+    lat: data.originLat,
+    lng: data.originLng,
+    radius: data.radiusMetres ?? ROUND_RADII[data.broadcastRound] ?? 8000,
+    eligibleCount: drivers.length,
+    driverIds: drivers.map(d => d.driver_id.toString()),
+  })
+
   if (!drivers.length) {
     if (data.broadcastRound >= 3) {
       await repo.updateRideStatus(rideId, 'no_drivers')
@@ -145,6 +154,13 @@ export async function processBroadcast(data: BroadcastJobData): Promise<void> {
       driverLng:      driver.lng,
     })
   ))
+  for (const d of driversWithWindow) {
+    console.log('[DEBUG RIDE FLOW] ASSIGNMENT', {
+      rideId: data.rideId,
+      driverId: d.driver_id.toString(),
+      created: true,
+    })
+  }
 
   // Set ACK keys and queue retry jobs BEFORE emitting the socket.
   // If the key is set after the emit, a fast ACK from the driver deletes a
