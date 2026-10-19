@@ -403,7 +403,7 @@ export async function createBooking(userId: bigint, data: BookingRequest) {
   }
 
   if (
-    data.rideType === 'round_trip' &&
+    (data.rideType === 'one_way' || data.rideType === 'round_trip') &&
     data.destinationLat !== undefined &&
     data.destinationLng !== undefined
   ) {
@@ -411,10 +411,15 @@ export async function createBooking(userId: bigint, data: BookingRequest) {
       data.originLat, data.originLng, data.destinationLat, data.destinationLng
     )
     if (classification.scope === 'in_city') {
-      throw Object.assign(
-        new Error(`This trip stays within ${classification.cityName} — book an hourly rental package instead`),
-        { httpStatus: 422 }
+      const tripDistanceMetres = distanceMetres(
+        data.originLat, data.originLng, data.destinationLat, data.destinationLng
       )
+      if (tripDistanceMetres < IN_CITY_MAX_TRIP_DISTANCE_METRES) {
+        throw Object.assign(
+          new Error(`This trip stays within ${classification.cityName} — book an hourly rental package instead`),
+          { httpStatus: 422 }
+        )
+      }
     }
   }
 

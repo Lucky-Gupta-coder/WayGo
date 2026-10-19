@@ -11,6 +11,13 @@ import RouteTimeline from '@/components/route/RouteTimeline'
 import { safetyApi } from '@/lib/safety-api'
 import { formatReturnAt } from '@/lib/utils'
 import { geoApi } from '@/lib/geo-api'
+import {
+  haversineMetres,
+  determineRouteEndpoints,
+  computeTickedEta,
+  isValidDispatchDistance,
+  type RouteMode,
+} from '@/lib/geo'
 import { connectSocket, joinRideRoom, leaveRideRoom, getSocket } from '@/lib/socket'
 import { useInterpolatedPosition } from '@/lib/useInterpolatedPosition'
 import { decodePolyline } from '@/lib/polyline'
@@ -38,23 +45,12 @@ function fmtClock(totalSec: number) {
   return `${m}:${String(s).padStart(2, '0')}`
 }
 
-type RouteMode = 'pickup-dest' | 'driver-pickup' | 'driver-dest' | 'returning' | 'recap'
-
 function routeModeFor(status: string): RouteMode {
   if (status === 'accepted' || status === 'driver_arrived') return 'driver-pickup'
   if (status === 'returning') return 'returning'
   if (status === 'in_progress') return 'driver-dest'
   if (status === 'completed' || status === 'cancelled') return 'recap'
   return 'pickup-dest'
-}
-
-function haversineMetres(a: [number, number], b: [number, number]): number {
-  const R = 6_371_000
-  const dLat = (b[0] - a[0]) * Math.PI / 180
-  const dLng = (b[1] - a[1]) * Math.PI / 180
-  const s = Math.sin(dLat / 2) ** 2
-    + Math.cos(a[0] * Math.PI / 180) * Math.cos(b[0] * Math.PI / 180) * Math.sin(dLng / 2) ** 2
-  return R * 2 * Math.atan2(Math.sqrt(s), Math.sqrt(1 - s))
 }
 
 type StatusKey = 'scheduled' | 'requested' | 'accepted' | 'driver_arrived' | 'in_progress' | 'returning' | 'completed' | 'cancelled' | 'no_drivers'
@@ -651,30 +647,14 @@ export default function RidePage() {
 
   useEffect(() => {
     if (!ride) return
-    const hd = ride.dest_lat != null && ride.dest_lng != null
-
-    let origin: [number, number]
-    let dest: [number, number]
-
-    if (routeMode === 'driver-pickup') {
-      if (!driverPos) return
-      origin = driverPos
-      dest   = userPos ?? pickupPos
-    } else if (routeMode === 'returning') {
-      // Driver is heading from the destination back to the origin — same
-      // shape as the pickup leg (driver -> pickupPos), just later in the trip.
-      if (!driverPos) return
-      origin = driverPos
-      dest   = pickupPos
-    } else if (routeMode === 'driver-dest') {
-      if (!driverPos || !hd) return
-      origin = driverPos
-      dest   = dropPos
-    } else {
-      if (!hd) return
-      origin = pickupPos
-      dest   = dropPos
-    }
+    const endpoints = determineRouteEndpoints(routeMode, {
+      pickupPos,
+      dropPos,
+      driverPos,
+      hasDropPos: hasDest,
+    })
+    if (!endpoints) return
+    const { origin, dest } = endpoints
 
     // Pending-stop identity: when a stop is reached mid-trip it leaves this set,
     // so the route must refetch to stop bending toward the already-visited stop.
@@ -683,11 +663,11 @@ export default function RidePage() {
     const prev         = lastFetch.current
     const modeChanged  = !prev || prev.mode !== routeMode
     const stopsChanged = !prev || prev.stopsKey !== stopsKey
-    const deviated     = prev && driverPos ? haversineMetres(driverPos, prev.origin) > 200 : false
-    const userDeviated = prev && userPos ? haversineMetres(userPos, prev.dest) > 100 : false
-    const stale        = prev ? (Date.now() - prev.at) > 60_000 : false
+    const originDeviated = prev ? haversineMetres(origin, prev.origin) > 200 : false
+    const destDeviated   = prev ? haversineMetres(dest, prev.dest) > 100 : false
+    const stale          = prev ? (Date.now() - prev.at) > 60_000 : false
 
-    if (!modeChanged && !stopsChanged && !deviated && !userDeviated && !stale) return
+    if (!modeChanged && !stopsChanged && !originDeviated && !destDeviated && !stale) return
     if (routeMode === 'recap' && prev?.mode === 'recap') return
 
     const seq = ++fetchSeq.current
@@ -715,11 +695,18 @@ export default function RidePage() {
           setRouteOverride(concat.length >= 2 ? concat : undefined)
           setEncodedPolyline(undefined)
           if (wantsEta) {
-            setLiveEta({
-              etaMin: Math.round(legs.reduce((s, l) => s + (l.trafficDurationMin ?? l.durationMin), 0)),
-              distanceKm: Math.round(legs.reduce((s, l) => s + l.distanceKm, 0) * 10) / 10,
-            })
-            setLiveEtaAt(Date.now())
+            const totalDistanceKm = Math.round(legs.reduce((s, l) => s + l.distanceKm, 0) * 10) / 10
+            const totalEtaMin = Math.round(legs.reduce((s, l) => s + (l.trafficDurationMin ?? l.durationMin), 0))
+            if (routeMode === 'driver-pickup' && !isValidDispatchDistance(totalDistanceKm)) {
+              setLiveEta(null)
+              setLiveEtaAt(null)
+            } else {
+              setLiveEta({
+                etaMin: totalEtaMin,
+                distanceKm: totalDistanceKm,
+              })
+              setLiveEtaAt(Date.now())
+            }
           } else { setLiveEta(null); setLiveEtaAt(null) }
         })
         .catch(() => { if (fetchSeq.current === seq) { setRouteOverride(undefined); setLiveEta(null); setLiveEtaAt(null) } })
@@ -732,15 +719,21 @@ export default function RidePage() {
         if (fetchSeq.current !== seq) return
         setEncodedPolyline(r.polyline || undefined)
         if (wantsEta) {
-          setLiveEta({ etaMin: Math.round(r.trafficDurationMin ?? r.durationMin), distanceKm: r.distanceKm })
-          setLiveEtaAt(Date.now())
+          // If the computed pickup dispatch distance is absurd (> 100 km), suppress ETA/distance rather than displaying ~1600 km
+          if (routeMode === 'driver-pickup' && !isValidDispatchDistance(r.distanceKm)) {
+            setLiveEta(null)
+            setLiveEtaAt(null)
+          } else {
+            setLiveEta({ etaMin: Math.round(r.trafficDurationMin ?? r.durationMin), distanceKm: r.distanceKm })
+            setLiveEtaAt(Date.now())
+          }
         } else {
           setLiveEta(null)
           setLiveEtaAt(null)
         }
       })
       .catch(() => { if (fetchSeq.current === seq) { setEncodedPolyline(undefined); setLiveEta(null); setLiveEtaAt(null) } })
-  }, [routeMode, driverPos, userPos, pickupPos, dropPos, ride])
+  }, [routeMode, driverPos, pickupPos, dropPos, ride])
 
   // Tick the displayed ETA down every second between server refreshes instead of
   // leaving it frozen — derives remaining time/distance from the rate implied by
@@ -766,13 +759,7 @@ export default function RidePage() {
   }, [waitingStop?.sequence, waitingStop?.arrived_at])
 
   const displayEta = useMemo(() => {
-    if (!liveEta || liveEtaAt == null || nowTick === 0) return liveEta
-    const rateKmPerMin = liveEta.etaMin > 0 ? liveEta.distanceKm / liveEta.etaMin : 0
-    const elapsedMin = (nowTick - liveEtaAt) / 60_000
-    return {
-      etaMin:     Math.max(0, Math.round(liveEta.etaMin - elapsedMin)),
-      distanceKm: Math.max(0, liveEta.distanceKm - rateKmPerMin * elapsedMin),
-    }
+    return computeTickedEta(liveEta, liveEtaAt, nowTick)
   }, [liveEta, liveEtaAt, nowTick])
 
   const status    = (rideStatus as StatusKey) in STATUS_CONFIG ? (rideStatus as StatusKey) : 'requested'

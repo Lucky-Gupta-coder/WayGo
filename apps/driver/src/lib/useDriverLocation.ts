@@ -62,8 +62,18 @@ export function useDriverLocation({
       const passesAccuracyGate = pos.coords.accuracy <= maxAccuracyM
       if (hasFirstFix.current && !passesAccuracyGate) return
       hasFirstFix.current = true
-      const lat = pos.coords.latitude
-      const lng = pos.coords.longitude
+
+      const isDevOrDemo = import.meta.env.DEV || import.meta.env.VITE_DEMO_MODE === 'true'
+      let lat = pos.coords.latitude
+      let lng = pos.coords.longitude
+      if (isDevOrDemo) {
+        const dLat = Math.abs(lat - 20.2961)
+        const dLng = Math.abs(lng - 85.8245)
+        if (dLat > 1 || dLng > 1) {
+          lat = 20.2961
+          lng = 85.8245
+        }
+      }
       setPosition([lat, lng])
 
       // Prefer the GPS chipset's Doppler-derived speed (accurate, low-latency);
@@ -130,12 +140,49 @@ export function useDriverLocation({
     // "fixed" it only because it re-registered a brand-new watch. Do that
     // ourselves instead. PERMISSION_DENIED isn't retried — that needs the
     // user to act in settings, retrying it endlessly won't help.
+    const isDevOrDemo = import.meta.env.DEV || import.meta.env.VITE_DEMO_MODE === 'true'
+
     function handleError(err: GeolocationPositionError) {
+      if (isDevOrDemo && !hasFirstFix.current) {
+        console.warn('[useDriverLocation] Real geolocation error, using simulated Bhubaneswar GPS in dev/demo:', err.message)
+        handlePosition({
+          coords: {
+            latitude: 20.2961,
+            longitude: 85.8245,
+            accuracy: 10,
+            altitude: null,
+            altitudeAccuracy: null,
+            heading: null,
+            speed: null,
+          },
+          timestamp: Date.now(),
+        } as GeolocationPosition)
+        return
+      }
+
       setError(err)
       if (err.code !== err.PERMISSION_DENIED) {
         navigator.geolocation.clearWatch(watchId)
         retryTimer = setTimeout(() => { if (!cancelled) startWatch() }, 2_000)
       }
+    }
+
+    if (!navigator.geolocation) {
+      if (isDevOrDemo) {
+        handlePosition({
+          coords: {
+            latitude: 20.2961,
+            longitude: 85.8245,
+            accuracy: 10,
+            altitude: null,
+            altitudeAccuracy: null,
+            heading: null,
+            speed: null,
+          },
+          timestamp: Date.now(),
+        } as GeolocationPosition)
+      }
+      return
     }
 
     startWatch()

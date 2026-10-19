@@ -11,6 +11,7 @@ import RoutePolyline from './RoutePolyline'
 import TrafficLayer from './TrafficLayer'
 import StopPin from './StopPin'
 import FlyTo from './FlyTo'
+import { haversineMetres } from '@/lib/geo'
 
 // Brief "here's the whole picture" beat when a driver first appears or the leg
 // changes (pickup -> destination), then settles into a plain follow — mirrors
@@ -104,7 +105,9 @@ export default function RideMapScene({
           : (showDrop && <FitBounds positions={[pickupPos, ...stops, dropPos]} paddingBottom={40} />)
       }
       <LocationPin position={pickupPos} variant="pickup" />
-      {isPickupLeg && userPos && <LocationPin position={userPos} variant="user" />}
+      {isPickupLeg && userPos && haversineMetres(userPos, pickupPos) < 50_000 && (
+        <LocationPin position={userPos} variant="user" />
+      )}
       {stops.map((p, i) => (
         <StopPin
           key={`${p[0]}-${p[1]}`}

@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect } from 'react'
-import { useMap } from '@vis.gl/react-google-maps'
+import { useEffect, useRef } from 'react'
+import { useLeafletMap } from './LeafletMapContext'
 
 interface MapCenterTrackerProps {
   onCenterChange: (lat: number, lng: number) => void
@@ -9,22 +9,32 @@ interface MapCenterTrackerProps {
 }
 
 export default function MapCenterTracker({ onCenterChange, onDragStart }: MapCenterTrackerProps) {
-  const map = useMap()
+  const map = useLeafletMap()
+  const onCenterChangeRef = useRef(onCenterChange)
+  onCenterChangeRef.current = onCenterChange
+  const onDragStartRef = useRef(onDragStart)
+  onDragStartRef.current = onDragStart
 
   useEffect(() => {
     if (!map) return
 
-    const dragListener = map.addListener('dragstart', () => onDragStart?.())
-    const idleListener = map.addListener('idle', () => {
+    const handleDragStart = () => {
+      onDragStartRef.current?.()
+    }
+
+    const handleMoveEnd = () => {
       const c = map.getCenter()
-      if (c) onCenterChange(c.lat(), c.lng())
-    })
+      onCenterChangeRef.current(c.lat, c.lng)
+    }
+
+    map.on('dragstart', handleDragStart)
+    map.on('moveend', handleMoveEnd)
 
     return () => {
-      dragListener.remove()
-      idleListener.remove()
+      map.off('dragstart', handleDragStart)
+      map.off('moveend', handleMoveEnd)
     }
-  }, [map, onCenterChange, onDragStart])
+  }, [map])
 
   return null
 }

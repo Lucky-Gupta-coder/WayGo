@@ -213,9 +213,13 @@ async function seedDemoDriver() {
   })
 
   await pool.end()
+  const { client: redis } = await import('./redis')
+  redis.disconnect()
 }
 
-seedDemoDriver().catch(err => {
+seedDemoDriver().then(() => {
+  process.exit(0)
+}).catch(err => {
   console.error('❌ Demo driver seed failed:', err)
   process.exit(1)
 })

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useMap } from '@vis.gl/react-google-maps'
+import { useLeafletMap } from './LeafletMapContext'
 
 interface FlyToProps {
   target: [number, number] | null
@@ -9,12 +9,11 @@ interface FlyToProps {
 }
 
 export default function FlyTo({ target, zoom = 16 }: FlyToProps) {
-  const map = useMap()
+  const map = useLeafletMap()
 
   useEffect(() => {
     if (!map || !target) return
-    map.panTo({ lat: target[0], lng: target[1] })
-    map.setZoom(zoom)
+    map.flyTo([target[0], target[1]], zoom, { duration: 0.8 })
   }, [target, zoom, map])
 
   return null

@@ -23,14 +23,7 @@ const DEFAULT_LAT = 20.2961
 const DEFAULT_LNG = 85.8245
 const EASE = [0.22, 1, 0.36, 1] as const
 
-function getCurrentPosition(): Promise<GeolocationPosition> {
-  return new Promise((resolve, reject) =>
-    navigator.geolocation.getCurrentPosition(resolve, reject, {
-      enableHighAccuracy: false,
-      timeout: 8000,
-    })
-  )
-}
+import { getCurrentPosition } from '@/lib/location'
 
 export default function StandardConfirm() {
   const navigate = useNavigate()

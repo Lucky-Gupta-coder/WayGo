@@ -20,14 +20,7 @@ const DEFAULT_LNG = 85.8245
 
 type City = { id: number; name: string; slug: string }
 
-function getCurrentPosition(): Promise<GeolocationPosition> {
-  return new Promise((resolve, reject) =>
-    navigator.geolocation.getCurrentPosition(resolve, reject, {
-      enableHighAccuracy: false,
-      timeout: 8000,
-    })
-  )
-}
+import { getCurrentPosition } from '@/lib/location'
 
 export default function ReturnCabSetup() {
   const navigate = useNavigate()
