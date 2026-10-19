@@ -6,6 +6,11 @@ html.overflow-hidden {
   overflow: hidden !important;
 }
 
+:root {
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-display: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
 @layer base {
   html { font-family: var(--font-sans), sans-serif; }
   body { background: #F8FAFF; color: #0F172A; }
