@@ -6,6 +6,7 @@ import { Eye, EyeOff, ArrowRight, CheckCircle2, ShieldCheck } from 'lucide-react
 import { adminAuthApi, storeAdminAuth } from '@/lib/auth'
 import { registerPush } from '@/lib/push'
 import { cn } from '@/lib/utils'
+import { WayGoLogo } from '@/components/ui/WayGoLogo'
 
 function AdminLoginForm() {
   const router = useRouter()
@@ -88,11 +89,8 @@ function AdminLoginForm() {
       <div className="w-full max-w-sm">
 
         {/* Brand mark */}
-        <div className="flex items-center gap-2.5 mb-8">
-          <div className="w-9 h-9 rounded-xl bg-brand flex items-center justify-center">
-            <span className="text-white font-black">O</span>
-          </div>
-          <span className="text-text-primary font-black text-xl">car</span>
+        <div className="mb-8">
+          <WayGoLogo iconSize={38} wordmarkClassName="text-2xl" />
         </div>
 
           <div className="mb-8">

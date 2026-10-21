@@ -1,5 +1,5 @@
 // Firebase Cloud Messaging background service worker.
-// Handles push notifications while the Ocar admin portal is backgrounded/closed.
+// Handles push notifications while the WayGo admin portal is backgrounded/closed.
 // NOTE: this file cannot read Next.js env vars (it's a static asset served
 // as-is), so the Firebase config is passed in as query params on the SW
 // registration URL (see registerPush() in lib/push.ts) and read back out
@@ -20,7 +20,7 @@ firebase.initializeApp({
 const messaging = firebase.messaging()
 
 messaging.onBackgroundMessage((payload) => {
-  const title = payload.notification?.title || 'Ocar'
+  const title = payload.notification?.title || 'WayGo'
   const options = {
     body: payload.notification?.body || '',
     icon: '/icon-192.png',

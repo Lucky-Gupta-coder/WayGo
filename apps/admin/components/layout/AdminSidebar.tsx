@@ -13,6 +13,7 @@ import {
 import { cn } from '@/lib/utils'
 import type { AdminRole } from '@/lib/mock-data'
 import ConfirmDialog from '@/components/ui/ConfirmDialog'
+import { WayGoIcon } from '@/components/ui/WayGoLogo'
 
 interface NavItem {
   href: string
@@ -105,11 +106,11 @@ export default function AdminSidebar({ role, adminName, adminInitials, sosActive
       {/* Logo */}
       <div className="px-3 md:px-5 pt-5 pb-4">
         <div className="flex items-center justify-center md:justify-start gap-2.5 mb-1">
-          <div className="w-8 h-8 rounded-xl bg-brand flex items-center justify-center flex-shrink-0">
-            <span className="text-white font-black text-sm tracking-tight">O</span>
-          </div>
-          <div className="hidden md:block">
-            <span className="text-text-primary font-black text-lg leading-none">car</span>
+          <WayGoIcon size={32} />
+          <div className="hidden md:flex items-center">
+            <span className="text-text-primary font-black text-lg leading-none tracking-tight">
+              <span>Way</span><span className="text-primary">Go</span>
+            </span>
             <span className="ml-1.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-primary-light text-primary">
               Admin
             </span>

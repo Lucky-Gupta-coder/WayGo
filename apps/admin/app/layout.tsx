@@ -9,6 +9,9 @@ import MaintenanceBanner from '@/components/layout/MaintenanceBanner'
 export const metadata: Metadata = {
   title: 'WayGo Admin',
   description: 'WayGo platform administration',
+  icons: {
+    icon: '/favicon.svg',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

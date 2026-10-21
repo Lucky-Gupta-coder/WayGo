@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import { type AdminProfile, getStoredAdmin, getAdminToken, getAdminRefreshToken, clearAdminAuth, adminAuthApi } from './auth'
 import api from './api'
 import { unregisterPush } from './push'
+import { WayGoLogo } from '@/components/ui/WayGoLogo'
 
 interface AdminAuthContextType {
   admin: AdminProfile | null
@@ -71,11 +72,8 @@ function AdminLoadingScreen() {
   return (
     <div className="min-h-screen bg-canvas flex items-center justify-center">
       <div className="flex flex-col items-center gap-4">
-        <div className="text-2xl font-bold">
-          <span className="text-primary">O</span>
-          <span className="text-text-primary">car</span>
-        </div>
-        <div className="flex gap-1.5">
+        <WayGoLogo iconSize={40} wordmarkClassName="text-2xl" />
+        <div className="flex gap-1.5 mt-1">
           {[0, 150, 300].map((delay) => (
             <div
               key={delay}
