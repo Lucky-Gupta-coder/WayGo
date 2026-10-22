@@ -11,6 +11,7 @@ import path from 'path'
 // an opaque CORS-looking failure. WHEN_REQUIRED restores pre-3.729 behavior.
 const s3 = new S3Client({
   region: config.S3_REGION,
+  ...(config.S3_ENDPOINT ? { endpoint: config.S3_ENDPOINT } : {}),
   credentials: {
     accessKeyId: config.S3_ACCESS_KEY,
     secretAccessKey: config.S3_SECRET_KEY,
@@ -18,7 +19,32 @@ const s3 = new S3Client({
   requestChecksumCalculation: 'WHEN_REQUIRED',
 })
 
-const S3_URL_PREFIX = `https://${config.S3_BUCKET_NAME}.s3.${config.S3_REGION}.amazonaws.com/`
+function getStorageUrlPrefix(): string {
+  if (config.S3_ENDPOINT) {
+    try {
+      const parsed = new URL(config.S3_ENDPOINT)
+      return `${parsed.protocol}//${config.S3_BUCKET_NAME}.${parsed.host}/`
+    } catch {
+      const cleaned = config.S3_ENDPOINT.replace(/^https?:\/\//, '').replace(/\/+$/, '')
+      return `https://${config.S3_BUCKET_NAME}.${cleaned}/`
+    }
+  }
+  return `https://${config.S3_BUCKET_NAME}.s3.${config.S3_REGION}.amazonaws.com/`
+}
+
+const S3_URL_PREFIX = getStorageUrlPrefix()
+
+function extractKeyFromUrl(fileUrl: string): string | null {
+  if (fileUrl.startsWith(S3_URL_PREFIX)) {
+    return fileUrl.slice(S3_URL_PREFIX.length)
+  }
+  // Also recognize default AWS S3 prefix if migrating or accessing existing AWS URLs
+  const awsPrefix = `https://${config.S3_BUCKET_NAME}.s3.${config.S3_REGION}.amazonaws.com/`
+  if (fileUrl.startsWith(awsPrefix)) {
+    return fileUrl.slice(awsPrefix.length)
+  }
+  return null
+}
 
 export async function uploadFile(
   file: Express.Multer.File,
@@ -71,7 +97,7 @@ export async function promotePendingUpload(pendingKey: string, folder: string): 
 }
 
 export async function getPresignedUrl(fileUrl: string, expiresIn = 3600): Promise<string> {
-  const key = fileUrl.startsWith(S3_URL_PREFIX) ? fileUrl.slice(S3_URL_PREFIX.length) : null
+  const key = extractKeyFromUrl(fileUrl)
   if (!key) return fileUrl
 
   return getSignedUrl(
@@ -82,7 +108,7 @@ export async function getPresignedUrl(fileUrl: string, expiresIn = 3600): Promis
 }
 
 export async function deleteFile(url: string): Promise<void> {
-  const key = url.startsWith(S3_URL_PREFIX) ? url.slice(S3_URL_PREFIX.length) : null
+  const key = extractKeyFromUrl(url)
   if (!key) return
 
   await s3.send(new DeleteObjectCommand({ Bucket: config.S3_BUCKET_NAME, Key: key }))

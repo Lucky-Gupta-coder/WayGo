@@ -81,6 +81,7 @@ const envSchema = z.object({
   FCM_PROJECT_ID: z.string().default(''),
 
   // Storage
+  S3_ENDPOINT: z.string().default(''),
   S3_BUCKET_NAME: z.string().min(1),
   S3_REGION: z.string().default('ap-south-1'),
   // AWS SDK v3 does not auto-detect region from EC2 instance metadata the way
