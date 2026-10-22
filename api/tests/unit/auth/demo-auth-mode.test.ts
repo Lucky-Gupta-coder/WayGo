@@ -9,7 +9,7 @@ vi.mock('@/modules/auth/auth.service', async () => {
   return {
     ...actual,
     requestOtp: vi.fn(async (phone: string, role: string, purpose: string) => {
-      const isDemo = actual.isDemoAuthModeActive()
+      const isDemo = actual.isDemoAuthModeActive(phone)
       return { otp: isDemo ? DEMO_OTP : '654321' }
     }),
   }
@@ -39,33 +39,43 @@ describe('DEMO_AUTH_MODE behavior and safety guards', () => {
   describe('isDemoAuthModeActive()', () => {
     it('is inactive by default when DEMO_AUTH_MODE is unset', () => {
       delete process.env['DEMO_AUTH_MODE']
-      process.env['NODE_ENV'] = 'development'
-      expect(isDemoAuthModeActive()).toBe(false)
+      delete process.env['DEMO_AUTH_PHONE']
+      process.env['NODE_ENV'] = 'production'
+      expect(isDemoAuthModeActive('+919876543210')).toBe(false)
     })
 
-    it('is active in non-production when DEMO_AUTH_MODE=true', () => {
-      process.env['NODE_ENV'] = 'demo'
-      process.env['DEMO_AUTH_MODE'] = 'true'
-      expect(isDemoAuthModeActive()).toBe(true)
-    })
-
-    it('is active in staging when DEMO_AUTH_MODE=true', () => {
-      process.env['NODE_ENV'] = 'staging'
-      process.env['DEMO_AUTH_MODE'] = 'true'
-      expect(isDemoAuthModeActive()).toBe(true)
-    })
-
-    it('is STRICTLY INACTIVE in production even if DEMO_AUTH_MODE=true is set', () => {
+    it('is inactive in production when DEMO_AUTH_MODE=true but no phone whitelist is configured', () => {
       process.env['NODE_ENV'] = 'production'
       process.env['DEMO_AUTH_MODE'] = 'true'
-      expect(isDemoAuthModeActive()).toBe(false)
+      delete process.env['DEMO_AUTH_PHONE']
+      // Prevents arbitrary universal bypass in production
+      expect(isDemoAuthModeActive('+919876543210')).toBe(false)
+    })
+
+    it('is active in production ONLY for whitelisted demo phone numbers', () => {
+      process.env['NODE_ENV'] = 'production'
+      process.env['DEMO_AUTH_MODE'] = 'true'
+      process.env['DEMO_AUTH_PHONE'] = '9876543210'
+
+      // Authorized demo phone succeeds
+      expect(isDemoAuthModeActive('+919876543210')).toBe(true)
+      // Any other phone number is strictly rejected from demo mode
+      expect(isDemoAuthModeActive('+919999999999')).toBe(false)
+    })
+
+    it('is active in non-production environments when DEMO_AUTH_MODE=true', () => {
+      process.env['NODE_ENV'] = 'development'
+      process.env['DEMO_AUTH_MODE'] = 'true'
+      delete process.env['DEMO_AUTH_PHONE']
+      expect(isDemoAuthModeActive('+919876543210')).toBe(true)
     })
   })
 
   describe('POST /otp/request controller integration', () => {
-    it('returns fixed DEMO_OTP and demoMode=true in non-production when DEMO_AUTH_MODE=true', async () => {
-      process.env['NODE_ENV'] = 'demo'
+    it('returns fixed DEMO_OTP and demoMode=true in production for authorized demo phone', async () => {
+      process.env['NODE_ENV'] = 'production'
       process.env['DEMO_AUTH_MODE'] = 'true'
+      process.env['DEMO_AUTH_PHONE'] = '9876543210'
 
       const res = await request(buildApp())
         .post('/otp/request')
@@ -77,13 +87,14 @@ describe('DEMO_AUTH_MODE behavior and safety guards', () => {
       expect(res.body.message).toContain('Demo OTP generated')
     })
 
-    it('never exposes DEMO_OTP or demoMode in production even if DEMO_AUTH_MODE is provided', async () => {
+    it('does NOT activate demo mode or leak OTP in production for non-whitelisted phone', async () => {
       process.env['NODE_ENV'] = 'production'
       process.env['DEMO_AUTH_MODE'] = 'true'
+      process.env['DEMO_AUTH_PHONE'] = '9876543210'
 
       const res = await request(buildApp())
         .post('/otp/request')
-        .send({ phone: '+919876543210', role: 'user', purpose: 'login' })
+        .send({ phone: '+919111122222', role: 'user', purpose: 'login' })
         .expect(200)
 
       expect(res.body.demoMode).toBe(false)

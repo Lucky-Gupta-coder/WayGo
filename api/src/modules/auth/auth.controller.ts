@@ -12,14 +12,14 @@ export async function requestOtp(req: Request, res: Response, next: NextFunction
     }
     const result = await authService.requestOtp(phone, role, purpose)
     const isProduction = (process.env['NODE_ENV'] || config.NODE_ENV) === 'production'
-    const isDemoAuth = authService.isDemoAuthModeActive()
+    const isDemoAuth = authService.isDemoAuthModeActive(phone)
 
     const body: Record<string, unknown> = {
       message: isDemoAuth ? 'Demo OTP generated (SMS bypassed)' : 'OTP sent',
       demoMode: isDemoAuth,
     }
-    // Return OTP in non-production so tests, development, and demo environments work without SMS.
-    if (!isProduction) {
+    // Return OTP when in non-production, OR when demo auth mode is authorized for this phone
+    if (!isProduction || isDemoAuth) {
       body['otp'] = result.otp
     }
     res.status(200).json(body)

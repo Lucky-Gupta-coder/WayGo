@@ -115,8 +115,11 @@ const envSchema = z.object({
   // Demo — set DEMO_MODE=true on staging/demo VPS to unlock demo-force endpoints
   DEMO_MODE: z.enum(['true', 'false']).default('false'),
   // Explicit demo auth mode for student/college demos without a paid SMS provider.
-  // Defaults to false. Can only be active in non-production environments.
+  // Defaults to false.
   DEMO_AUTH_MODE: z.enum(['true', 'false']).default('false'),
+  // Optional comma-separated or single phone number whitelist for demo login.
+  // If set, demo OTP only applies to these authorized demo numbers.
+  DEMO_AUTH_PHONE: z.string().default(''),
 
   // Logging — 'info' in prod keeps GPS-ping-path debug logs compiled out;
   // bump to 'debug' locally when tracing socket/queue correlation.

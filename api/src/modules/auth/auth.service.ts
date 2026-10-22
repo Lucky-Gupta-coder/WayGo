@@ -26,14 +26,35 @@ import type {
 export { createHttpError }
 
 /**
- * Returns true only when demo auth mode is explicitly enabled and the current
- * environment is strictly non-production (e.g. demo, staging, development, test).
- * Production environments cannot enable demo auth mode under any circumstances.
+ * Returns true only when demo auth mode is explicitly enabled.
+ * If phone is provided and DEMO_AUTH_PHONE is configured, only the whitelisted
+ * phone number(s) qualify for demo login. This prevents universal bypass of arbitrary numbers.
  */
-export function isDemoAuthModeActive(): boolean {
-  const isProd = (process.env['NODE_ENV'] || config.NODE_ENV) === 'production'
+export function isDemoAuthModeActive(phone?: string): boolean {
   const isDemoAuthEnabled = (process.env['DEMO_AUTH_MODE'] ?? config.DEMO_AUTH_MODE) === 'true'
-  return !isProd && isDemoAuthEnabled
+  if (!isDemoAuthEnabled) return false
+
+  const allowedPhones = ((process.env['DEMO_AUTH_PHONE'] ?? config.DEMO_AUTH_PHONE) || '')
+    .split(',')
+    .map(p => p.trim())
+    .filter(Boolean)
+
+  if (allowedPhones.length > 0 && phone) {
+    const normalizedTarget = phone.replace(/\D/g, '')
+    const matches = allowedPhones.some(allowed => {
+      const normalizedAllowed = allowed.replace(/\D/g, '')
+      return normalizedTarget.endsWith(normalizedAllowed) || normalizedAllowed.endsWith(normalizedTarget)
+    })
+    return matches
+  }
+
+  // In production, require DEMO_AUTH_PHONE whitelist to prevent arbitrary bypass
+  const isProd = (process.env['NODE_ENV'] || config.NODE_ENV) === 'production'
+  if (isProd && allowedPhones.length === 0) {
+    return false
+  }
+
+  return true
 }
 
 // ── Expiry helpers ────────────────────────────────────────────────────────────
@@ -99,9 +120,9 @@ export async function requestOtp(
     throw createHttpError(AppErrors.AUTH_OTP_LOCKED)
   }
 
-  // Safe Demo Mode: when DEMO_AUTH_MODE=true in a non-production environment,
+  // Safe Demo Mode: when DEMO_AUTH_MODE=true (and phone is whitelisted if in production),
   // use the documented fixed DEMO_OTP and skip enqueueing outbound SMS.
-  const isDemo = isDemoAuthModeActive()
+  const isDemo = isDemoAuthModeActive(phone)
   const otp = isDemo ? DEMO_OTP : otpLib.generateOtp()
   const otpHash = otpLib.hashOtp(otp)
   const expiresAt = new Date(Date.now() + OTP_TTL_SECONDS * 1000)
