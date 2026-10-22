@@ -124,11 +124,27 @@ export function createApp(): Application {
   app.use(helmet())
 
   // 3. CORS
-  app.use(
-    cors({
-      origin: config.ALLOWED_ORIGINS.split(',').map(o => o.trim()),
-    })
-  )
+  const configuredOrigins = (config.ALLOWED_ORIGINS || '').split(',').map(o => o.trim()).filter(Boolean)
+  // Ensure the official web app origin is always permitted even if env variable is partially overridden
+  const allowedOriginsList = Array.from(new Set(['https://waygo-web.onrender.com', ...configuredOrigins]))
+  const corsOptions: cors.CorsOptions = {
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps, curl, server-to-server)
+      if (!origin || allowedOriginsList.includes(origin)) {
+        callback(null, true)
+      } else {
+        callback(null, false)
+      }
+    },
+    credentials: true,
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+    exposedHeaders: ['Content-Range', 'X-Content-Range'],
+    maxAge: 86400,
+    optionsSuccessStatus: 204,
+  }
+  app.use(cors(corsOptions))
+  app.options('*', cors(corsOptions))
 
   // 4. Body parsing
   // `verify` stashes the exact raw bytes alongside the normal parse — the

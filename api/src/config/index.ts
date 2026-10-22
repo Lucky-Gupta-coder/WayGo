@@ -101,7 +101,9 @@ const envSchema = z.object({
   API_PORT: z.coerce.number().default(4000),
   API_BASE_URL: z.string().default('http://localhost:4000'),
   ADMIN_APP_URL: z.string().default('http://localhost:3002'),
-  ALLOWED_ORIGINS: z.string().default('http://localhost:3000'),
+  ALLOWED_ORIGINS: z.string().default(
+    'https://waygo-web.onrender.com,http://localhost:3000,http://localhost:3001,http://localhost:3002,http://localhost:5173,http://localhost:5174'
+  ),
 
   // BullMQ
   BULLMQ_CONCURRENCY: z.coerce.number().default(5),
