@@ -88,7 +88,6 @@ export default function HomePage() {
   // before this page even mounted) — read the shared result instead of
   // firing a second independent geolocation request here.
   const { lat, lng, address: addr, cityId: originCityId, ensureFresh } = useLocation()
-  const [collapsed,   setCollapsed]   = useState(false)
   const [resolving,   setResolving]   = useState(false)
   const [recentTrips, setRecentTrips] = useState<RideHistoryItem[]>([])
   const [tripsLoading, setTripsLoading] = useState(true)
@@ -221,7 +220,7 @@ export default function HomePage() {
         }}
         variants={heroVariants}
         initial="hidden"
-        animate={collapsed ? 'collapsed' : 'expanded'}
+        animate="expanded"
         transition={{ duration: 0.5, ease: EASE }}
       >
         {/* Top bar */}
@@ -275,37 +274,26 @@ export default function HomePage() {
           </motion.div>
         </div>
 
-        {/* Greeting, disappears on collapse */}
-        <AnimatePresence initial={false}>
-          {!collapsed && (
-            <motion.div
-              key="greeting"
-              initial={{ opacity: 0, height: 0, marginBottom: 0 }}
-              animate={{ opacity: 1, height: 'auto', marginBottom: 20 }}
-              exit={{ opacity: 0, height: 0, marginBottom: 0 }}
-              transition={{ duration: 0.28, ease: EASE }}
-              style={{ overflow: 'hidden' }}
-            >
-              <motion.p
-                className="text-sm font-medium"
-                style={{ color: 'rgba(255,255,255,0.48)' }}
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.22, duration: 0.36, ease: EASE }}
-              >
-                {greeting()}
-              </motion.p>
-              <motion.h1
-                className="text-2xl font-bold text-white tracking-tight mt-0.5"
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.26, duration: 0.36, ease: EASE }}
-              >
-                {name} 👋
-              </motion.h1>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* Greeting */}
+        <div className="mb-5 overflow-hidden">
+          <motion.p
+            className="text-sm font-medium"
+            style={{ color: 'rgba(255,255,255,0.48)' }}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.22, duration: 0.36, ease: EASE }}
+          >
+            {greeting()}
+          </motion.p>
+          <motion.h1
+            className="text-2xl font-bold text-white tracking-tight mt-0.5"
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.26, duration: 0.36, ease: EASE }}
+          >
+            {name} 👋
+          </motion.h1>
+        </div>
 
         {/* Search bar, always visible */}
         <motion.button
@@ -327,23 +315,17 @@ export default function HomePage() {
           </span>
         </motion.button>
 
-        {/* Bottom padding spacer, shrinks when collapsed */}
-        <motion.div
-          animate={{ height: collapsed ? 14 : 6 }}
-          transition={SPRING}
-        />
+        {/* Bottom padding spacer */}
+        <div className="h-6" />
       </motion.div>
 
       {/* ── Content ───────────────────────────────────────────── */}
       <motion.div
-        className="flex-1 overflow-y-auto scrollbar-none"
+        className="flex-1 overflow-y-auto overscroll-contain scrollbar-none"
+        style={{ WebkitOverflowScrolling: 'touch' }}
         variants={page}
         initial="hidden"
         animate="show"
-        onScroll={(e: React.UIEvent<HTMLDivElement>) => {
-          const top = e.currentTarget.scrollTop
-          setCollapsed(top > 48)
-        }}
       >
         <div className="px-4 pt-4 pb-28 flex flex-col gap-5">
 

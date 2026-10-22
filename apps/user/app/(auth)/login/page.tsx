@@ -55,9 +55,9 @@ export default function LoginPage() {
     setLoading(true)
     try {
       const result = await authApi.requestOtp(formatPhone(phone))
-      const isDemo = !!result.demoMode || DEMO_MODE || process.env.NODE_ENV === 'development'
-      setIsDemoMode(!!result.demoMode)
-      if (result.otp && isDemo) {
+      const isConfirmedDemo = !!result.demoMode
+      setIsDemoMode(isConfirmedDemo)
+      if (result.otp && (isConfirmedDemo || process.env.NODE_ENV === 'development')) {
         setDevOtp(result.otp)
       } else {
         setDevOtp('')
@@ -188,7 +188,7 @@ export default function LoginPage() {
                 >
                   <span className="font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 text-[10px]">Demo Mode</span>
                   <p className="flex-1 text-slate-700">
-                    College Demo Environment active. Real SMS is bypassed and login is simulated using test OTP.
+                    Demo environment active. Real SMS is bypassed and login is simulated using test OTP.
                   </p>
                 </div>
               )}
@@ -282,13 +282,13 @@ export default function LoginPage() {
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold text-blue-700 uppercase tracking-wide">
-                      {isDemoMode ? 'College Demo OTP' : 'Dev OTP'}
+                      {isDemoMode ? 'Demo OTP' : 'Dev OTP'}
                     </span>
                     <span className="font-mono font-bold text-xl tracking-[0.25em] text-blue-800">{devOtp}</span>
                   </div>
                   <p className="text-[11px] text-slate-600">
                     {isDemoMode
-                      ? 'SMS delivery is disabled in demo mode. Enter this 6-digit demo code to log in.'
+                      ? 'SMS delivery is disabled in demo mode. Enter this 6-digit code to log in.'
                       : 'Development mode OTP auto-generated.'}
                   </p>
                 </div>
