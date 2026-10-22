@@ -7,6 +7,7 @@ import request from 'supertest'
 // layer so no real DB/Redis is needed.
 vi.mock('@/modules/auth/auth.service', () => ({
   requestOtp: vi.fn(() => Promise.resolve({ otp: '1234' })),
+  isDemoAuthModeActive: vi.fn(() => false),
 }))
 
 import { requestOtp } from '@/modules/auth/auth.controller'

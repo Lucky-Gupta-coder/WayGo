@@ -25,6 +25,7 @@ export default function LoginPage() {
   const [error, setError] = useState('')
   const [countdown, setCountdown] = useState(0)
   const [devOtp, setDevOtp] = useState('')
+  const [isDemoMode, setIsDemoMode] = useState(false)
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const otpRequestInFlightRef = useRef(false)
 
@@ -54,14 +55,27 @@ export default function LoginPage() {
     setLoading(true)
     try {
       const result = await authApi.requestOtp(formatPhone(phone))
-      if ((DEMO_MODE || process.env.NODE_ENV === 'development') && result.otp) setDevOtp(result.otp)
+      const isDemo = !!result.demoMode || DEMO_MODE || process.env.NODE_ENV === 'development'
+      setIsDemoMode(!!result.demoMode)
+      if (result.otp && isDemo) {
+        setDevOtp(result.otp)
+      } else {
+        setDevOtp('')
+      }
       setStep('otp')
       setOtp('')
       startCountdown()
     } catch (err: unknown) {
-      const code = (err as { response?: { data?: { code?: string } } })?.response?.data?.code
+      const resData = (err as { response?: { data?: { code?: string; error?: string; message?: string } } })?.response?.data
+      const code = resData?.code
       if (code === 'AUTH_OTP_RATE_LIMITED') {
         setError('Too many attempts. Please wait before trying again.')
+      } else if (resData?.error) {
+        setError(resData.error)
+      } else if (resData?.message) {
+        setError(resData.message)
+      } else if ((err as { message?: string })?.message?.includes('Network Error')) {
+        setError('Cannot connect to server. Please check your connection.')
       } else {
         setError('Failed to send OTP. Please check your number.')
       }
@@ -167,6 +181,18 @@ export default function LoginPage() {
               <h1 className="text-2xl font-bold text-text-primary mb-1">Welcome back</h1>
               <p className="text-text-secondary text-sm mb-8">Enter your phone number to continue</p>
 
+              {(DEMO_MODE || isDemoMode) && (
+                <div
+                  className="mb-4 px-3.5 py-2.5 rounded-xl flex items-start gap-2.5 text-xs font-medium"
+                  style={{ background: 'rgba(59, 130, 246, 0.08)', border: '1px solid rgba(59, 130, 246, 0.25)', color: '#2563EB' }}
+                >
+                  <span className="font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 text-[10px]">Demo Mode</span>
+                  <p className="flex-1 text-slate-700">
+                    College Demo Environment active. Real SMS is bypassed and login is simulated using test OTP.
+                  </p>
+                </div>
+              )}
+
               <form onSubmit={handlePhoneSubmit} className="flex-1 flex flex-col">
                 <div
                   className="relative flex items-center gap-2 rounded-2xl px-4 h-[54px] mb-4 transition-all duration-200"
@@ -249,13 +275,22 @@ export default function LoginPage() {
                 Sent to <span className="font-semibold text-text-primary">+91 {phone}</span>
               </p>
 
-              {(DEMO_MODE || process.env.NODE_ENV === 'development') && devOtp && (
+              {devOtp && (
                 <div
-                  className="mb-5 px-4 py-2.5 rounded-xl flex items-center justify-between"
-                  style={{ background: 'rgba(234,179,8,0.10)', border: '1px dashed rgba(234,179,8,0.45)' }}
+                  className="mb-5 px-4 py-3 rounded-xl flex flex-col gap-1.5"
+                  style={{ background: 'rgba(59, 130, 246, 0.08)', border: '1px solid rgba(59, 130, 246, 0.3)' }}
                 >
-                  <span className="text-xs font-semibold text-yellow-600">Dev OTP</span>
-                  <span className="font-mono font-bold text-lg tracking-[0.25em] text-yellow-700">{devOtp}</span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-blue-700 uppercase tracking-wide">
+                      {isDemoMode ? 'College Demo OTP' : 'Dev OTP'}
+                    </span>
+                    <span className="font-mono font-bold text-xl tracking-[0.25em] text-blue-800">{devOtp}</span>
+                  </div>
+                  <p className="text-[11px] text-slate-600">
+                    {isDemoMode
+                      ? 'SMS delivery is disabled in demo mode. Enter this 6-digit demo code to log in.'
+                      : 'Development mode OTP auto-generated.'}
+                  </p>
                 </div>
               )}
 

@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
+import { config } from '@/config'
 import * as authService from './auth.service'
 import * as repo from './auth.repository'
 
@@ -10,13 +11,17 @@ export async function requestOtp(req: Request, res: Response, next: NextFunction
       purpose: 'login'
     }
     const result = await authService.requestOtp(phone, role, purpose)
-    // Return OTP in non-production so tests and development work without SMS.
-    // DEMO_MODE must never override this in a real production deployment —
-    // it only widens the leak within non-production environments (e.g. a
-    // staging/demo VPS that also wants demo-force endpoints unlocked).
-    const body: Record<string, unknown> = { message: 'OTP sent' }
-    const isProduction = process.env['NODE_ENV'] === 'production'
-    if (!isProduction) body['otp'] = result.otp
+    const isProduction = (process.env['NODE_ENV'] || config.NODE_ENV) === 'production'
+    const isDemoAuth = authService.isDemoAuthModeActive()
+
+    const body: Record<string, unknown> = {
+      message: isDemoAuth ? 'Demo OTP generated (SMS bypassed)' : 'OTP sent',
+      demoMode: isDemoAuth,
+    }
+    // Return OTP in non-production so tests, development, and demo environments work without SMS.
+    if (!isProduction) {
+      body['otp'] = result.otp
+    }
     res.status(200).json(body)
   } catch (err) {
     next(err)

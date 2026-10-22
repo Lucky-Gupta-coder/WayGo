@@ -3,7 +3,7 @@ import crypto from 'crypto'
 import { createHttpError } from '@/lib/errors'
 import { PrincipalRole, OtpPurpose } from '@/constants/enums'
 import { config } from '@/config'
-import { OTP_TTL_SECONDS } from '@/constants/limits'
+import { OTP_TTL_SECONDS, DEMO_OTP } from '@/constants/limits'
 import * as otpLib from '@/lib/otp'
 import { signAccessToken, generateRefreshToken, hashRefreshToken, signPendingTotpToken, verifyPendingTotpToken } from '@/lib/jwt'
 import { comparePassword } from '@/lib/hash'
@@ -24,6 +24,17 @@ import type {
 } from './auth.types'
 
 export { createHttpError }
+
+/**
+ * Returns true only when demo auth mode is explicitly enabled and the current
+ * environment is strictly non-production (e.g. demo, staging, development, test).
+ * Production environments cannot enable demo auth mode under any circumstances.
+ */
+export function isDemoAuthModeActive(): boolean {
+  const isProd = (process.env['NODE_ENV'] || config.NODE_ENV) === 'production'
+  const isDemoAuthEnabled = (process.env['DEMO_AUTH_MODE'] ?? config.DEMO_AUTH_MODE) === 'true'
+  return !isProd && isDemoAuthEnabled
+}
 
 // ── Expiry helpers ────────────────────────────────────────────────────────────
 
@@ -88,7 +99,10 @@ export async function requestOtp(
     throw createHttpError(AppErrors.AUTH_OTP_LOCKED)
   }
 
-  const otp = otpLib.generateOtp()
+  // Safe Demo Mode: when DEMO_AUTH_MODE=true in a non-production environment,
+  // use the documented fixed DEMO_OTP and skip enqueueing outbound SMS.
+  const isDemo = isDemoAuthModeActive()
+  const otp = isDemo ? DEMO_OTP : otpLib.generateOtp()
   const otpHash = otpLib.hashOtp(otp)
   const expiresAt = new Date(Date.now() + OTP_TTL_SECONDS * 1000)
 
@@ -97,11 +111,14 @@ export async function requestOtp(
     repo.createOtpRequest({ principalRole, phone, purpose: otpPurpose, otpHash, expiresAt }),
   ])
 
-  await notificationsQueue.add(
-    'otp_sms',
-    { phone, otp, type: 'auth' },
-    { attempts: 3, backoff: { type: 'exponential', delay: 2000 } }
-  )
+  // In demo mode, do not enqueue SMS to avoid sending real messages or relying on SMS providers
+  if (!isDemo) {
+    await notificationsQueue.add(
+      'otp_sms',
+      { phone, otp, type: 'auth' },
+      { attempts: 3, backoff: { type: 'exponential', delay: 2000 } }
+    )
+  }
 
   return { otp }
 }

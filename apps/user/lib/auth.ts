@@ -87,7 +87,7 @@ export const authApi = {
       role: 'user',
       purpose: 'login',
     })
-    return response.data as { message: string; otp?: string }
+    return response.data as { message: string; otp?: string; demoMode?: boolean }
   },
 
   verifyOtp: async (phone: string, otp: string) => {
