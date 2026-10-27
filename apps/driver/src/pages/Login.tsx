@@ -90,10 +90,21 @@ export default function Login() {
       if ((import.meta.env.DEV || import.meta.env.VITE_DEMO_MODE === 'true') && res.data.otp) setDevOtp(res.data.otp)
       setStep('otp'); setOtp(''); startCountdown()
     } catch (err: unknown) {
-      const resData = (err as { response?: { data?: { code?: string; error?: string } } })?.response?.data
-      setError(resData?.code === 'AUTH_OTP_RATE_LIMITED'
-        ? 'Too many attempts. Please wait before trying again.'
-        : resData?.error || 'Failed to send OTP. Please check your number.')
+      const resData = (err as { response?: { data?: { code?: string; error?: string; message?: string; fields?: Record<string, string[]> } } })?.response?.data
+      const fieldError = resData?.fields ? Object.values(resData.fields).flat().join('. ') : undefined
+      if (resData?.code === 'AUTH_OTP_RATE_LIMITED') {
+        setError('Too many attempts. Please wait before trying again.')
+      } else if (fieldError) {
+        setError(fieldError)
+      } else if (resData?.error) {
+        setError(resData.error)
+      } else if (resData?.message) {
+        setError(resData.message)
+      } else if ((err as { message?: string })?.message?.includes('Network Error')) {
+        setError('Cannot connect to server. Please check your connection.')
+      } else {
+        setError('Failed to send OTP. Please check your number.')
+      }
     } finally { otpRequestInFlightRef.current = false; setLoading(false) }
   }
 

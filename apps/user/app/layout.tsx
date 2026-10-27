@@ -10,6 +10,9 @@ import MaintenanceProvider from '@/components/providers/MaintenanceProvider'
 export const metadata: Metadata = {
   title: 'WayGo',
   description: 'Book a cab in seconds. WayGo is the fastest way to get a ride.',
+  icons: {
+    icon: '/favicon.svg',
+  },
 }
 
 export const viewport: Viewport = {

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 48" width="180" height="48" fill="none">
+  <defs>
+    <linearGradient id="waygo-brand-grad-full" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4F46E5" />
+      <stop offset="100%" stop-color="#7C3AED" />
+    </linearGradient>
+    <linearGradient id="waygo-road-grad-full" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#E0E7FF" />
+    </linearGradient>
+  </defs>
+
+  <!-- Icon Mark -->
+  <rect width="48" height="48" rx="14" fill="url(#waygo-brand-grad-full)" />
+  <path
+    d="M10 15.5L16.2 34C16.5 35 17.5 35.6 18.5 35.5C19.5 35.4 20.3 34.7 20.6 33.7L24 22L27.4 33.7C27.7 34.7 28.5 35.4 29.5 35.5C30.5 35.6 31.5 35 31.8 34L38 15.5"
+    stroke="url(#waygo-road-grad-full)"
+    stroke-width="4.2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <circle cx="24" cy="13.5" r="3.5" fill="#FFFFFF" />
+  <circle cx="24" cy="13.5" r="1.5" fill="#6366F1" />
+
+  <!-- Wordmark "WayGo" -->
+  <text x="62" y="32" font-family="Plus Jakarta Sans, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="25" font-weight="900" letter-spacing="-0.5">
+    <tspan fill="#0F172A">Way</tspan><tspan fill="#4F46E5">Go</tspan>
+  </text>
+</svg>

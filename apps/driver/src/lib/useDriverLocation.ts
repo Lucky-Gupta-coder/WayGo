@@ -59,7 +59,7 @@ export function useDriverLocation({
       // (browser/WiFi accuracy is often 100–2000 m, which would fail the 80 m
       // gate and leave the driver with no visible car marker at all).
       // After the first fix, discard noisy cell-tower-only updates.
-      const passesAccuracyGate = pos.coords.accuracy <= maxAccuracyM
+      const passesAccuracyGate = pos.coords.accuracy <= maxAccuracyM || (import.meta.env.DEV || import.meta.env.VITE_DEMO_MODE === 'true')
       if (hasFirstFix.current && !passesAccuracyGate) return
       hasFirstFix.current = true
 
@@ -143,8 +143,7 @@ export function useDriverLocation({
     const isDevOrDemo = import.meta.env.DEV || import.meta.env.VITE_DEMO_MODE === 'true'
 
     function handleError(err: GeolocationPositionError) {
-      if (isDevOrDemo && !hasFirstFix.current) {
-        console.warn('[useDriverLocation] Real geolocation error, using simulated Bhubaneswar GPS in dev/demo:', err.message)
+      if (isDevOrDemo) {
         handlePosition({
           coords: {
             latitude: 20.2961,
@@ -157,6 +156,10 @@ export function useDriverLocation({
           },
           timestamp: Date.now(),
         } as GeolocationPosition)
+        if (!hasFirstFix.current) {
+          console.warn('[useDriverLocation] Using simulated Bhubaneswar GPS in dev/demo')
+        }
+        retryTimer = setTimeout(() => { if (!cancelled) startWatch() }, 15_000)
         return
       }
 

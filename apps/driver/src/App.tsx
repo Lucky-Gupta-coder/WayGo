@@ -202,6 +202,7 @@ export default function App() {
   // their own.
   useEffect(() => {
     if (!isAuthenticated) disconnectDriverSocket()
+    else connectDriverSocket()
   }, [isAuthenticated])
 
   useEffect(() => {
@@ -324,6 +325,9 @@ export default function App() {
   // that's governed entirely by the server-side ride sweep, not this.
   useEffect(() => {
     if (!isOnline || activeRide) return
+    const isDevOrDemo = import.meta.env.DEV || import.meta.env.VITE_DEMO_MODE === 'true'
+    if (isDevOrDemo) return
+
     const onVisibilityChange = () => {
       if (document.visibilityState === 'hidden') {
         driverRideApi.pause().catch(() => {})

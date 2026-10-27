@@ -66,10 +66,13 @@ export default function LoginPage() {
       setOtp('')
       startCountdown()
     } catch (err: unknown) {
-      const resData = (err as { response?: { data?: { code?: string; error?: string; message?: string } } })?.response?.data
+      const resData = (err as { response?: { data?: { code?: string; error?: string; message?: string; fields?: Record<string, string[]> } } })?.response?.data
       const code = resData?.code
+      const fieldError = resData?.fields ? Object.values(resData.fields).flat().join('. ') : undefined
       if (code === 'AUTH_OTP_RATE_LIMITED') {
         setError('Too many attempts. Please wait before trying again.')
+      } else if (fieldError) {
+        setError(fieldError)
       } else if (resData?.error) {
         setError(resData.error)
       } else if (resData?.message) {
@@ -156,7 +159,7 @@ export default function LoginPage() {
       >
         <OcarLogoMark size="xl" className="mb-4" />
         <p className="text-sm mt-1.5" style={{ color: 'rgba(255,255,255,0.45)' }}>
-          Your ride, your city
+          Fast, safe and reliable rides
         </p>
       </motion.div>
 
